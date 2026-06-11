@@ -2,6 +2,8 @@
 __pycache__/
 *.py[codz]
 *$py.class
+.DS_Store
+**/.DS_Store
 
 # C extensions
 *.so
@@ -95,10 +97,7 @@ ipython_config.py
 # Pipfile.lock
 
 # UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-# uv.lock
+# Keep uv.lock committed for this reproducible demo repository.
 
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
@@ -181,6 +180,26 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# AutoGPUMD local simulation artifacts
+potentials/
+*.lammpstrj
+*.traj
+*.dump
+*.out
+*.err
+gpumd.stdout
+gpumd.stderr
+
+# Generated demo outputs can be recreated by the mock workflow.
+examples/**/analysis/*.csv
+examples/**/figures/*.png
+examples/**/thermo*.csv
+examples/**/trajectory*.xyz
+examples/**/structure.xyz
+examples/**/structure_note.md
+examples/**/run.in
+examples/**/MOCK_MODE.md
+
 # PyCharm
 #   JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #   be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
@@ -205,6 +224,7 @@ tempCodeRunnerFile.py
 
 # Ruff stuff:
 .ruff_cache/
+.uv-cache/
 
 # PyPI configuration file
 .pypirc

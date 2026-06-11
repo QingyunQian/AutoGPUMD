@@ -1,0 +1,51 @@
+tools:
+  - name: prepare_simulation
+    description: Validate a YAML config and prepare structure/run template files.
+    command: autogpumd prepare {config_path}
+    safe_mode: use --mock when a real nep.txt is unavailable
+    inputs:
+      - config_path
+      - mock
+    constraints:
+      - Do not invent or create real NEP potentials.
+      - Require explicit user confirmation before changing real simulation inputs.
+
+  - name: run_gpumd
+    description: Run GPUMD in a prepared workdir or generate deterministic mock outputs.
+    command: autogpumd run {workdir}
+    inputs:
+      - workdir
+      - gpumd
+      - mock
+    constraints:
+      - Use --mock for CI and laptop demos.
+      - In real mode, surface stdout/stderr paths and return codes.
+
+  - name: analyze_outputs
+    description: Analyze supported thermo and XYZ trajectory outputs.
+    command: autogpumd analyze {workdir} --thermo --rdf --msd
+    inputs:
+      - workdir
+    constraints:
+      - State parser limitations clearly.
+      - Do not claim unsupported GPUMD output formats are parsed.
+
+  - name: write_report
+    description: Generate a concise Markdown report from available analyses and figures.
+    command: autogpumd report {workdir}
+    inputs:
+      - workdir
+    constraints:
+      - Distinguish mock data from real GPUMD data.
+      - Include limitations and next steps.
+
+  - name: debug_gpumd_error
+    description: Inspect stdout, stderr, and files in a workdir to suggest likely causes.
+    command: manual_review
+    inputs:
+      - workdir
+      - stdout
+      - stderr
+    constraints:
+      - Do not hallucinate undocumented GPUMD behavior.
+      - Recommend checking official GPUMD docs for syntax-specific issues.

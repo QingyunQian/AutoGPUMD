@@ -1,0 +1,16 @@
+name: autogpumd
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.10
+  - ase
+  - matplotlib
+  - numpy
+  - pandas
+  - pyyaml
+  - pytest
+  - ruff
+  - typer
+  - pip
+  - pip:
+      - -e .

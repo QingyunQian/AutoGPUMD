@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autogpumd"
+version = "0.1.0"
+description = "Agent-assisted molecular dynamics workflow layer around GPUMD/NEP."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Qingyun Qian" }]
+dependencies = [
+  "ase>=3.22",
+  "matplotlib>=3.7",
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "pytest>=7.4",
+  "pyyaml>=6.0",
+  "typer>=0.9",
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff>=0.5",
+]
+
+[dependency-groups]
+dev = [
+  "ruff>=0.5",
+]
+
+[project.scripts]
+autogpumd = "autogpumd.cli:app"
+
+[tool.setuptools.packages.find]
+include = ["autogpumd*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

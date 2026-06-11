@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - uses: astral-sh/setup-uv@v5
+      - name: Install
+        run: uv sync --dev
+      - name: Ruff
+        run: uv run ruff check .
+      - name: Pytest
+        run: uv run pytest
+      - name: Mock workflow smoke test
+        run: |
+          uv run autogpumd init examples/al_nvt_mock --template al-nvt
+          uv run autogpumd prepare configs/al_nvt.yaml --mock
+          uv run autogpumd run examples/al_nvt_mock --mock
+          uv run autogpumd analyze examples/al_nvt_mock --thermo --rdf --msd
+          uv run autogpumd report examples/al_nvt_mock
