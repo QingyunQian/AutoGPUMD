@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import tempfile
+from contextlib import suppress
 from pathlib import Path
 
 import pandas as pd
@@ -90,7 +91,12 @@ def plot_workdir(workdir: Path, *, thermo: bool, rdf: bool, msd: bool) -> dict[s
     figures = workdir / "figures"
     outputs: dict[str, Path] = {}
     if thermo:
-        outputs.update(plot_thermo(read_thermo(find_first(workdir, THERMO_CANDIDATES)), figures))
+        thermo_csv = workdir / "analysis" / "thermo.csv"
+        if thermo_csv.exists():
+            outputs.update(plot_thermo(pd.read_csv(thermo_csv), figures))
+        else:
+            with suppress(FileNotFoundError, ValueError):
+                outputs.update(plot_thermo(read_thermo(find_first(workdir, THERMO_CANDIDATES)), figures))
     if rdf:
         rdf_csv = workdir / "analysis" / "rdf.csv"
         if rdf_csv.exists():

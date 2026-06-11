@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 .DS_Store
 **/.DS_Store
+AGENTS.md
 
 # C extensions
 *.so
@@ -181,7 +182,9 @@ dmypy.json
 cython_debug/
 
 # AutoGPUMD local simulation artifacts
+external/
 potentials/
+potentials/**/nep.txt
 *.lammpstrj
 *.traj
 *.dump
@@ -192,6 +195,8 @@ gpumd.stderr
 
 # Generated demo outputs can be recreated by the mock workflow.
 examples/**/analysis/*.csv
+examples/**/analysis/*.json
+examples/**/raw/
 examples/**/figures/*.png
 examples/**/thermo*.csv
 examples/**/trajectory*.xyz

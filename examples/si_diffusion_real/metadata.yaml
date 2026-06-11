@@ -1,0 +1,9 @@
+data_mode: REAL TUTORIAL OUTPUT
+example_type: md
+source_path: official GPUMD-Tutorials / examples/09_Silicon_diffusion
+original_simulation_results: false
+parser_assumptions:
+  - Searches raw/ and workdir root for supported files.
+  - thermo.out must include recognizable named columns to be parsed.
+  - msd.out is interpreted as two-column time/MSD when no header is present.
+generated_timestamp: ''

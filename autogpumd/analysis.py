@@ -2,16 +2,21 @@
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
-THERMO_CANDIDATES = ("thermo_mock.csv", "thermo.csv")
+from autogpumd.metadata import infer_metadata
+
+THERMO_CANDIDATES = ("thermo_mock.csv", "thermo.csv", "thermo.out")
 TRAJECTORY_CANDIDATES = ("trajectory_mock.xyz", "trajectory.xyz", "dump.xyz")
+MSD_CANDIDATES = ("msd.csv", "msd.out")
 
 
 @dataclass(frozen=True)
@@ -22,6 +27,9 @@ class XyzTrajectory:
 
 
 def read_thermo(path: str | Path) -> pd.DataFrame:
+    path = Path(path)
+    if path.suffix == ".out":
+        return _read_named_thermo_out(path)
     df = pd.read_csv(path)
     required = {
         "step",
@@ -129,6 +137,24 @@ def compute_msd_from_xyz(path: str | Path) -> pd.DataFrame:
     return pd.DataFrame({"frame": np.arange(len(msd)), "time_ps": np.arange(len(msd)) * 0.1, "msd_A2": msd})
 
 
+def read_msd(path: str | Path) -> pd.DataFrame:
+    path = Path(path)
+    if path.suffix == ".csv":
+        df = pd.read_csv(path)
+    else:
+        df = _read_numeric_table(path)
+        if df.empty or df.shape[1] < 2:
+            raise ValueError(f"MSD file must contain at least two numeric columns: {path}")
+        if "time_ps" not in df.columns or "msd_A2" not in df.columns:
+            df = df.rename(columns={df.columns[0]: "time_ps", df.columns[1]: "msd_A2"})
+    missing = {"time_ps", "msd_A2"}.difference(df.columns)
+    if missing:
+        raise ValueError(f"MSD file is missing required columns: {sorted(missing)}")
+    out = df[["time_ps", "msd_A2"]].copy()
+    out.insert(0, "frame", np.arange(len(out)))
+    return out
+
+
 def estimate_diffusion_from_msd(
     msd_df: pd.DataFrame, fit_range: tuple[float, float] | None = None
 ) -> float:
@@ -155,44 +181,162 @@ def analyze_workdir(
     analysis_dir = workdir / "analysis"
     analysis_dir.mkdir(parents=True, exist_ok=True)
     outputs: dict[str, Path | dict[str, float]] = {}
+    metadata = infer_metadata(workdir)
+    skipped: list[str] = []
+    parser_assumptions = list(metadata.parser_assumptions)
 
     if thermo:
-        thermo_path = find_first(workdir, THERMO_CANDIDATES)
-        df = read_thermo(thermo_path)
-        out = analysis_dir / "thermo_summary.csv"
-        summary = summarize_thermo(df)
-        pd.DataFrame([summary]).to_csv(out, index=False)
-        outputs["thermo_summary_csv"] = out
-        outputs["thermo_summary"] = summary
+        try:
+            thermo_path = find_first(workdir, THERMO_CANDIDATES)
+            df = read_thermo(thermo_path)
+            thermo_csv = analysis_dir / "thermo.csv"
+            df.to_csv(thermo_csv, index=False)
+            out = analysis_dir / "thermo_summary.csv"
+            summary = summarize_thermo(df)
+            pd.DataFrame([summary]).to_csv(out, index=False)
+            outputs["thermo_csv"] = thermo_csv
+            outputs["thermo_summary_csv"] = out
+            outputs["thermo_summary"] = summary
+            parser_assumptions.append(f"Thermo parsed from {thermo_path.name}")
+        except (FileNotFoundError, ValueError) as exc:
+            skipped.append(f"thermo: {exc}")
 
-    traj_path = None
-    if rdf or msd:
-        traj_path = find_first(workdir, TRAJECTORY_CANDIDATES)
+    traj_path: Path | None = None
+    if rdf:
+        try:
+            traj_path = find_first(workdir, TRAJECTORY_CANDIDATES)
+            rdf_df = compute_rdf_from_xyz(traj_path)
+            out = analysis_dir / "rdf.csv"
+            rdf_df.to_csv(out, index=False)
+            outputs["rdf_csv"] = out
+            parser_assumptions.append(f"RDF parsed from {traj_path.name}")
+        except (FileNotFoundError, ValueError) as exc:
+            skipped.append(f"rdf: {exc}")
 
-    if rdf and traj_path is not None:
-        rdf_df = compute_rdf_from_xyz(traj_path)
-        out = analysis_dir / "rdf.csv"
-        rdf_df.to_csv(out, index=False)
-        outputs["rdf_csv"] = out
-
-    if msd and traj_path is not None:
-        msd_df = compute_msd_from_xyz(traj_path)
-        msd_out = analysis_dir / "msd.csv"
-        msd_df.to_csv(msd_out, index=False)
-        diffusion = estimate_diffusion_from_msd(msd_df)
-        diffusion_out = analysis_dir / "diffusion.csv"
-        pd.DataFrame([{"diffusion_A2_per_ps": diffusion}]).to_csv(diffusion_out, index=False)
-        outputs["msd_csv"] = msd_out
-        outputs["diffusion_csv"] = diffusion_out
+    if msd:
+        try:
+            msd_source = None
+            if traj_path is None:
+                try:
+                    traj_path = find_first(workdir, TRAJECTORY_CANDIDATES)
+                except FileNotFoundError:
+                    traj_path = None
+            if traj_path is not None:
+                msd_df = compute_msd_from_xyz(traj_path)
+                msd_source = traj_path
+            else:
+                msd_source = find_first(workdir, MSD_CANDIDATES)
+                msd_df = read_msd(msd_source)
+            msd_out = analysis_dir / "msd.csv"
+            msd_df.to_csv(msd_out, index=False)
+            diffusion = estimate_diffusion_from_msd(msd_df)
+            diffusion_out = analysis_dir / "diffusion.csv"
+            pd.DataFrame([{"diffusion_A2_per_ps": diffusion}]).to_csv(diffusion_out, index=False)
+            outputs["msd_csv"] = msd_out
+            outputs["diffusion_csv"] = diffusion_out
+            if msd_source is not None:
+                parser_assumptions.append(f"MSD parsed from {msd_source.name}")
+        except (FileNotFoundError, ValueError) as exc:
+            skipped.append(f"msd: {exc}")
+    summary_path = write_analysis_summary(
+        workdir,
+        {
+            "data_mode": metadata.data_mode,
+            "example_type": metadata.example_type,
+            "outputs": _json_ready(outputs),
+            "skipped": skipped,
+            "parser_assumptions": parser_assumptions,
+        },
+    )
+    outputs["analysis_summary_json"] = summary_path
     return outputs
 
 
 def find_first(workdir: Path, names: Iterable[str]) -> Path:
-    for name in names:
-        path = workdir / name
-        if path.exists():
-            return path
+    for directory in (Path(workdir), Path(workdir) / "raw"):
+        for name in names:
+            path = directory / name
+            if path.exists():
+                return path
     raise FileNotFoundError(f"None of these files were found in {workdir}: {', '.join(names)}")
+
+
+def write_analysis_summary(workdir: str | Path, summary: dict[str, Any]) -> Path:
+    path = Path(workdir) / "analysis" / "analysis_summary.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
+    return path
+
+
+def read_analysis_summary(workdir: str | Path) -> dict[str, Any]:
+    path = Path(workdir) / "analysis" / "analysis_summary.json"
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _read_named_thermo_out(path: Path) -> pd.DataFrame:
+    df = _read_numeric_table(path)
+    normalized = {_normalize_name(column): column for column in df.columns}
+    column_map: dict[str, str] = {}
+    candidates = {
+        "step": ("step", "n", "index"),
+        "time_ps": ("time_ps", "time", "t_ps"),
+        "temperature_K": ("temperature_k", "temperature", "temp", "t"),
+        "potential_energy_eV": ("potential_energy_ev", "potential_energy", "pe", "u"),
+        "kinetic_energy_eV": ("kinetic_energy_ev", "kinetic_energy", "ke", "ek"),
+        "total_energy_eV": ("total_energy_ev", "total_energy", "etot", "e"),
+    }
+    for target, names in candidates.items():
+        for name in names:
+            if name in normalized:
+                column_map[target] = normalized[name]
+                break
+    missing = set(candidates).difference(column_map)
+    if missing:
+        raise ValueError(
+            "thermo.out requires recognizable named columns for "
+            f"{sorted(missing)}; unsupported anonymous thermo.out was skipped"
+        )
+    out = pd.DataFrame({target: df[source] for target, source in column_map.items()})
+    return out
+
+
+def _read_numeric_table(path: Path) -> pd.DataFrame:
+    first = _first_content_line(path)
+    if first is None:
+        raise ValueError(f"Empty numeric table: {path}")
+    if first.startswith("#"):
+        names = first[1:].split()
+        df = pd.read_csv(path, sep=r"\s+", comment="#", header=None)
+        if len(names) == df.shape[1]:
+            df.columns = names
+        return df
+    return pd.read_csv(path, sep=r"\s+", comment="#", header=None)
+
+
+def _first_content_line(path: Path) -> str | None:
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if stripped:
+            return stripped
+    return None
+
+
+def _normalize_name(name: object) -> str:
+    text = str(name).strip().lower()
+    text = re.sub(r"[^a-z0-9]+", "_", text)
+    return text.strip("_")
+
+
+def _json_ready(value: Any) -> Any:
+    if isinstance(value, Path):
+        return str(value)
+    if isinstance(value, dict):
+        return {str(key): _json_ready(item) for key, item in value.items()}
+    if isinstance(value, list | tuple):
+        return [_json_ready(item) for item in value]
+    return value
 
 
 def _parse_lattice(comment: str) -> np.ndarray | None:

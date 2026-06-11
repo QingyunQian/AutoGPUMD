@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Annotated
 
 import typer
 
 from autogpumd.config import ConfigError, load_config, summarize_config
+from autogpumd.import_examples import ImportExampleError, import_example
 from autogpumd.runner import WorkflowError, prepare_workdir, run_workdir
 from autogpumd.templates import init_project
 
@@ -92,6 +94,24 @@ def analyze(
         typer.echo(f"  {name}: {path}")
     for name, path in figures.items():
         typer.echo(f"  figure_{name}: {path}")
+
+
+@app.command("import-example")
+def import_example_command(
+    name: str,
+    source: Annotated[
+        Path,
+        typer.Option("--source", help="Path to a cloned GPUMD-Tutorials repo."),
+    ],
+) -> None:
+    """Import a supported official tutorial-output example."""
+    try:
+        outputs = import_example(name, source=source)
+    except ImportExampleError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(f"Imported example: {name}")
+    for key, path in outputs.items():
+        typer.echo(f"  {key}: {path}")
 
 
 @app.command()

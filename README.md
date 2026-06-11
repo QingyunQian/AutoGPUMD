@@ -2,37 +2,47 @@
 
 **Agent-assisted Molecular Dynamics Workflow with GPUMD/NEP**
 
-AutoGPUMD is a small, unofficial Python v0.1 demo for reproducible molecular dynamics workflows around GPUMD and NEP. It shows how an agent-assisted layer can help with simulation setup, mock execution, output analysis, plotting, and report generation while preserving clear scientific provenance.
+AutoGPUMD is a small, unofficial Python v0.1 demo for reproducible atomistic simulation workflows around GPUMD and NEP. It focuses on workflow automation: setup, data import, analysis, plotting, report generation, and agent-style prompts/tools.
 
-The first release is intentionally modest: the complete workflow runs in mock mode on a laptop without GPUMD, without a GPU, and without a real NEP potential. Real GPUMD support is exposed as a clean subprocess interface for users who provide their own executable and `nep.txt`.
+The project is designed for a professor-facing research demo. It does not replace GPUMD, gpyumd, GPUMDkit, or official GPUMD tools.
 
-## Why This Exists
+## Why This Matters for AI-Assisted Atomistic Simulation
 
-Scientific simulation projects often lose time at workflow boundaries: preparing inputs, checking missing files, launching jobs, parsing outputs, making figures, and writing short reports. These are useful places for LLM-agent-style tools, but only if the tooling is conservative about provenance and physics.
+Computational materials projects often lose time at workflow boundaries: checking inputs, tracking provenance, launching or importing runs, parsing outputs, making figures, and writing short reports. AutoGPUMD demonstrates how a conservative agent-assisted layer can help automate those steps without inventing potentials or overstating results.
 
-AutoGPUMD demonstrates that idea with a small GPUMD/NEP-inspired workflow:
+The v0.1 goal is to show that the workflow can:
 
-- validate a YAML simulation plan;
-- generate an ASE structure and transparent `run.in` template;
-- run deterministic synthetic outputs for CI and local demos;
-- analyze thermo, RDF, and MSD data;
-- save publication-style figures and a Markdown report;
-- define agent tool prompts without calling a real LLM API.
+- run a complete mock MD pipeline on a laptop;
+- import official GPUMD tutorial outputs;
+- analyze thermo/RDF/MSD data;
+- generate figures and provenance-aware reports;
+- expose `agent/tools.yaml` and prompt templates for future LLM-agent workflows.
 
-AutoGPUMD does not invent potentials or claim physical conclusions from mock data.
+## What Works Today
 
-## Mock Mode vs Real GPUMD Mode
-
-| Mode | Purpose | Requirements | Scientific status |
+| Mode | Purpose | Requirement | Report label |
 | --- | --- | --- | --- |
-| Mock mode | Demonstrate and test the full workflow | Python only | Synthetic data, not physical GPUMD/NEP results |
-| Real GPUMD mode | Run an external GPUMD executable | GPUMD, valid user-provided `nep.txt`, reviewed inputs | User-provided simulation provenance |
+| Mock workflow | Full local demo and tests | Python only | `Data mode: MOCK` |
+| Real tutorial output | Analyze official GPUMD-Tutorials outputs | Cloned tutorial repo | `Data mode: REAL TUTORIAL OUTPUT` |
+| Real GPUMD run | Future A800/user run path | GPUMD, GPU, traceable `nep.txt` | `Data mode: REAL GPUMD RUN / USER-PROVIDED NEP` |
 
-Mock mode is the default v0.1 path. Real mode deliberately stays thin: AutoGPUMD writes conservative templates and calls `gpumd`, but users must verify GPUMD syntax, potential provenance, and output formats against official documentation.
+Mock data are synthetic. Tutorial outputs are used for learning and workflow demonstration. Real GPUMD results require a valid executable, suitable runtime environment, and user-provided official or traceable NEP potential.
 
-## Quickstart
+## Quickstart: Mock Workflow
 
 Use Python 3.10 or newer.
+
+```bash
+uv sync --dev
+uv run autogpumd init examples/al_nvt_mock --template al-nvt
+uv run autogpumd prepare configs/al_nvt.yaml --mock
+uv run autogpumd run examples/al_nvt_mock --mock
+uv run autogpumd analyze examples/al_nvt_mock --thermo --rdf --msd
+uv run autogpumd report examples/al_nvt_mock
+uv run pytest
+```
+
+Fallback without `uv`:
 
 ```bash
 pip install -e .
@@ -46,46 +56,50 @@ pytest
 
 Expected outputs:
 
-- figures in `examples/al_nvt_mock/figures/`
-- report at `examples/al_nvt_mock/report.md`
-- processed CSV files in `examples/al_nvt_mock/analysis/`
-- mock thermo and trajectory files in `examples/al_nvt_mock/`
+- `examples/al_nvt_mock/figures/temperature.png`
+- `examples/al_nvt_mock/figures/energy.png`
+- `examples/al_nvt_mock/figures/rdf.png`
+- `examples/al_nvt_mock/figures/msd.png`
+- `examples/al_nvt_mock/report.md`
+- `examples/al_nvt_mock/metadata.yaml`
+- `examples/al_nvt_mock/analysis/analysis_summary.json`
 
-The generated report starts with a data-mode label such as `MOCK` or `REAL / USER-PROVIDED`.
+## Import and Analyze Official GPUMD Tutorial Outputs
 
-## Installation and Development
-
-For a simple editable install:
-
-```bash
-pip install -e .
-```
-
-For uv-managed development:
+v0.1 supports the official GPUMD-Tutorials Si diffusion example as the real-data demonstration path.
 
 ```bash
-uv sync --dev
-uv run ruff check .
-uv run pytest
+git clone --depth 1 https://github.com/brucefan1983/GPUMD-Tutorials.git external/GPUMD-Tutorials
+
+uv run autogpumd import-example si-diffusion --source external/GPUMD-Tutorials
+uv run autogpumd analyze examples/si_diffusion_real --thermo --msd
+uv run autogpumd report examples/si_diffusion_real
 ```
 
-The repository includes `uv.lock` for reproducible development setup. A conda environment file is also provided for users who prefer conda/mamba.
+Expected outputs:
 
-## Real GPUMD Sketch
+- `examples/si_diffusion_real/source.md`
+- `examples/si_diffusion_real/metadata.yaml`
+- `examples/si_diffusion_real/analysis/analysis_summary.json`
+- `examples/si_diffusion_real/figures/msd.png`
+- `examples/si_diffusion_real/report.md`
 
-Prepare `configs/al_nvt.yaml` so `potential.path` points to a real `nep.txt`, then run:
+Thermo figures are generated only when `thermo.out` has recognizable named columns. Unsupported anonymous columns are skipped rather than guessed.
+
+## Optional Real GPUMD Run on A800
+
+This is a v0.2 path, not a v0.1 blocker. If you have GPUMD available on an A800 node and a traceable `nep.txt`, the intended workflow is:
 
 ```bash
-autogpumd validate configs/al_nvt.yaml
-autogpumd prepare configs/al_nvt.yaml
-autogpumd run examples/al_nvt_mock --gpumd gpumd
-autogpumd analyze examples/al_nvt_mock --thermo --rdf --msd
-autogpumd report examples/al_nvt_mock
+uv run autogpumd prepare configs/al_nvt.yaml
+uv run autogpumd run examples/al_nvt_mock --gpumd gpumd
+uv run autogpumd analyze examples/al_nvt_mock --thermo --rdf --msd
+uv run autogpumd report examples/al_nvt_mock
 ```
 
-Before using real outputs scientifically, inspect `run.in`, confirm GPUMD version compatibility, and verify the provenance of the potential and trajectory files.
+Before treating results scientifically, verify the GPUMD version, input syntax, potential source, and output parser assumptions.
 
-## CLI Commands
+## CLI
 
 ```bash
 autogpumd init PROJECT_DIR --template al-nvt
@@ -94,50 +108,71 @@ autogpumd prepare CONFIG_PATH [--mock]
 autogpumd run WORKDIR [--gpumd gpumd] [--mock]
 autogpumd analyze WORKDIR [--thermo] [--rdf] [--msd]
 autogpumd report WORKDIR
+autogpumd import-example si-diffusion --source PATH
 autogpumd agent-tools
-autogpumd submit WORKDIR --scheduler slurm
 ```
 
-## What v0.1 Includes
+## Agent Prompts and Tools
 
-- Typer CLI for the full workflow.
-- Dataclass-based YAML validation.
-- ASE-based Al fcc structure generation.
-- Deterministic mock thermo and XYZ trajectory generation.
-- Conservative thermo CSV and simple XYZ/extended XYZ parsers.
-- Temperature, energy, RDF, and MSD plotting with matplotlib.
-- Markdown reports that explicitly distinguish mock from real/user-provided data.
-- Agent tool definitions and prompts under `agent/`.
-- Lightweight pytest coverage that does not require GPUMD or a GPU.
+The `agent/` folder contains project-facing agent harness artifacts:
+
+- `agent/tools.yaml`
+- `agent/prompts/plan_simulation.md`
+- `agent/prompts/debug_gpumd_error.md`
+- `agent/prompts/write_report.md`
+- `agent/mcp_skills.md`
+
+These files describe safe workflow actions. The v0.1 package does not call a real LLM API.
 
 ## Repository Structure
 
 ```text
 autogpumd/       Python package and CLI implementation
 configs/         example YAML workflow configs
-examples/        mock and real-mode example folders
-agent/           tool definitions and prompt templates for agent workflows
-scripts/         Slurm submission template
+examples/        mock and tutorial-output example folders
+agent/           tool definitions and prompt templates
+scripts/         optional scheduler template
 tutorials/       planned tutorial notes
 tests/           lightweight pytest suite
 ```
 
 ## Limitations
 
-- Mock outputs are synthetic and should not be interpreted as physical results.
+- Mock outputs are synthetic and are not physical GPUMD results.
+- Official tutorial outputs are not original AutoGPUMD simulations.
 - Real NEP potentials are never fabricated, bundled, or guessed.
-- Current parsers support AutoGPUMD mock thermo CSV and simple XYZ/extended XYZ trajectories.
-- The generated `run.in` is a conservative template, not official GPUMD syntax validation.
-- Large trajectories, real potentials, and local generated outputs are kept out of git by default.
+- Current parsers support AutoGPUMD mock thermo CSV, simple XYZ/extended XYZ, and conservative tutorial-output tables.
+- Large trajectories, imported raw files, and local external clones are ignored by default.
 
 ## Roadmap
 
-- Real GPUMD/NEP tutorial-level run.
+### v0.1
+
+- Mock workflow.
+- Official Si diffusion tutorial-output import and analysis.
+- Professor-facing README and provenance-aware reports.
+- Agent prompts/tools.
+- Tests without GPUMD/GPU.
+
+### v0.1+
+
+- PbTe NEP tutorial analysis.
+- NEP loss and parity plots.
+- Improved parser support for official tutorial formats.
+
+### v0.2
+
+- A800 real GPUMD run.
+- Official/user-provided traceable `nep.txt`.
+- Real NVT MD demo.
+- Optional Slurm template validation.
+
+### v0.3
+
 - NEP training mini-demo.
 - High-temperature diffusion case study.
-- Confined-system case study.
-- Slurm/A800 cluster integration.
-- MCP server integration.
+- Confined-system toy case study.
+- MCP server or skills integration.
 
 ## Citation and Disclaimer
 

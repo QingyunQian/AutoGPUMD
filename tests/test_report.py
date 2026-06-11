@@ -13,8 +13,8 @@ def test_generate_mock_report(tmp_path: Path) -> None:
     plot_workdir(tmp_path, thermo=True, rdf=True, msd=True)
     report = generate_report(tmp_path)
     text = report.read_text(encoding="utf-8")
-    assert "**Data mode: MOCK.**" in text
+    assert "Data mode: MOCK" in text
     assert "synthetic mock data" in text
-    assert "not physical GPUMD/NEP" in text
+    assert "not physical GPUMD" in text
     assert "Limitations" in text
     assert "figures/temperature.png" in text

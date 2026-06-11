@@ -7,6 +7,13 @@ import subprocess
 from pathlib import Path
 
 from autogpumd.config import WorkflowConfig
+from autogpumd.metadata import (
+    REAL_GPUMD_MODE,
+    WorkdirMetadata,
+    mock_metadata,
+    now_timestamp,
+    write_metadata,
+)
 from autogpumd.mock import generate_mock_outputs
 from autogpumd.structure import build_structure, write_structure_files
 from autogpumd.templates import write_mock_notes, write_run_in
@@ -31,15 +38,33 @@ def prepare_workdir(config: WorkflowConfig, mock: bool = False) -> dict[str, Pat
     outputs["run_in"] = write_run_in(config, workdir, mock=mock)
     if mock:
         outputs["mock_notes"] = write_mock_notes(config, workdir)
+        outputs["metadata"] = write_metadata(workdir, mock_metadata())
     else:
         outputs["potential"] = config.potential_path
+        outputs["metadata"] = write_metadata(
+            workdir,
+            WorkdirMetadata(
+                data_mode=REAL_GPUMD_MODE,
+                example_type="md",
+                source_path=str(config.potential_path),
+                original_simulation_results=True,
+                parser_assumptions=[
+                    "Real GPUMD execution through an external executable",
+                    "Only supported output parser formats are analyzed",
+                ],
+                generated_timestamp=now_timestamp(),
+            ),
+        )
     return outputs
 
 
 def run_workdir(workdir: Path, gpumd: str = "gpumd", mock: bool = False) -> dict[str, Path]:
     workdir = Path(workdir)
     if mock:
-        return generate_mock_outputs(workdir)
+        outputs = generate_mock_outputs(workdir)
+        if not (workdir / "metadata.yaml").exists():
+            outputs["metadata"] = write_metadata(workdir, mock_metadata())
+        return outputs
 
     run_in = workdir / "run.in"
     if not run_in.exists():
