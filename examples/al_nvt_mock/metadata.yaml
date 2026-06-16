@@ -5,4 +5,4 @@ original_simulation_results: false
 parser_assumptions:
 - thermo_mock.csv uses AutoGPUMD mock thermo columns
 - trajectory_mock.xyz uses simple extended XYZ frames
-generated_timestamp: '2026-06-16T13:09:53+00:00'
+generated_timestamp: '2026-06-16T13:54:36+00:00'

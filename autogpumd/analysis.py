@@ -12,7 +12,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from autogpumd.metadata import infer_metadata
+from autogpumd.metadata import MOCK_MODE, infer_metadata
 
 THERMO_CANDIDATES = ("thermo_mock.csv", "thermo.csv", "thermo.out")
 TRAJECTORY_CANDIDATES = ("trajectory_mock.xyz", "trajectory.xyz", "dump.xyz")
@@ -285,7 +285,8 @@ def analyze_workdir(
                 outputs["sdc_csv"] = sdc_out
                 parser_assumptions.append(f"SDC parsed from {sdc_source.name}")
             except (FileNotFoundError, ValueError) as exc:
-                skipped.append(f"sdc: {exc}")
+                if metadata.data_mode != MOCK_MODE:
+                    skipped.append(f"sdc: {exc}")
         except (FileNotFoundError, ValueError) as exc:
             skipped.append(f"msd: {exc}")
     summary_path = write_analysis_summary(

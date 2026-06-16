@@ -18,3 +18,4 @@ def test_generate_mock_report(tmp_path: Path) -> None:
     assert "not physical GPUMD" in text
     assert "Limitations" in text
     assert "figures/temperature.png" in text
+    assert "sdc:" not in text

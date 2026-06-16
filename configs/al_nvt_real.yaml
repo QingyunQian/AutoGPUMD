@@ -1,0 +1,29 @@
+project:
+  name: al_nvt_real_demo
+  workdir: examples/al_nvt_real
+
+structure:
+  builder: ase_bulk
+  symbol: Al
+  crystalstructure: fcc
+  lattice_constant: 4.05
+  supercell: [4, 4, 4]
+
+potential:
+  type: nep
+  path: potentials/Al/nep.txt
+
+simulation:
+  ensemble: nvt
+  temperature: 300
+  timestep_fs: 1.0
+  equilibration_steps: 1000
+  production_steps: 5000
+  dump_interval: 100
+
+analysis:
+  thermo: true
+  rdf: true
+  msd: true
+  diffusion: true
+  report: true

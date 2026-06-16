@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -30,6 +30,9 @@ def now_timestamp() -> str:
 def write_metadata(workdir: str | Path, metadata: WorkdirMetadata) -> Path:
     path = Path(workdir) / "metadata.yaml"
     path.parent.mkdir(parents=True, exist_ok=True)
+    existing = read_metadata(workdir)
+    if existing is not None and _same_provenance(existing, metadata):
+        metadata = replace(metadata, generated_timestamp=existing.generated_timestamp)
     path.write_text(yaml.safe_dump(asdict(metadata), sort_keys=False), encoding="utf-8")
     return path
 
@@ -90,4 +93,14 @@ def mock_metadata() -> WorkdirMetadata:
             "trajectory_mock.xyz uses simple extended XYZ frames",
         ],
         generated_timestamp=now_timestamp(),
+    )
+
+
+def _same_provenance(left: WorkdirMetadata, right: WorkdirMetadata) -> bool:
+    return (
+        left.data_mode == right.data_mode
+        and left.example_type == right.example_type
+        and left.source_path == right.source_path
+        and left.original_simulation_results == right.original_simulation_results
+        and left.parser_assumptions == right.parser_assumptions
     )

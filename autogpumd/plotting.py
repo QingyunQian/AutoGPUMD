@@ -108,6 +108,52 @@ def plot_sdc(sdc_df: pd.DataFrame, outdir: str | Path) -> Path:
     return path
 
 
+def plot_loss(loss_df: pd.DataFrame, outdir: str | Path) -> Path:
+    plt = _pyplot()
+    outdir = Path(outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    path = outdir / "loss_curve.png"
+    fig, ax = plt.subplots(figsize=(6, 4))
+    for column in (
+        "total",
+        "l1_reg",
+        "l2_reg",
+        "energy_train",
+        "force_train",
+        "energy_test",
+        "force_test",
+    ):
+        if column in loss_df.columns:
+            ax.loglog(loss_df["generation"], loss_df[column], label=column)
+    ax.set_xlabel("Generation")
+    ax.set_ylabel("Loss")
+    ax.set_title("NEP loss curve")
+    ax.legend(fontsize=8)
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
+def plot_parity(df: pd.DataFrame, x_col: str, y_col: str, outdir: str | Path, name: str) -> Path:
+    plt = _pyplot()
+    outdir = Path(outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    path = outdir / f"{name}.png"
+    fig, ax = plt.subplots(figsize=(5, 5))
+    ax.scatter(df[x_col], df[y_col], s=8, alpha=0.45)
+    lo = min(float(df[x_col].min()), float(df[y_col].min()))
+    hi = max(float(df[x_col].max()), float(df[y_col].max()))
+    ax.plot([lo, hi], [lo, hi], color="#333333", linewidth=1)
+    ax.set_xlabel("DFT")
+    ax.set_ylabel("NEP")
+    ax.set_title(name.replace("_", " ").title())
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
 def plot_workdir(workdir: Path, *, thermo: bool, rdf: bool, msd: bool) -> dict[str, Path]:
     from autogpumd.analysis import THERMO_CANDIDATES, find_first, read_thermo
 
@@ -132,4 +178,33 @@ def plot_workdir(workdir: Path, *, thermo: bool, rdf: bool, msd: bool) -> dict[s
         sdc_csv = workdir / "analysis" / "sdc.csv"
         if sdc_csv.exists():
             outputs["sdc"] = plot_sdc(pd.read_csv(sdc_csv), figures)
+    return outputs
+
+
+def plot_nep_workdir(workdir: str | Path) -> dict[str, Path]:
+    workdir = Path(workdir)
+    figures = workdir / "figures"
+    analysis = workdir / "analysis"
+    outputs: dict[str, Path] = {}
+    loss_csv = analysis / "loss.csv"
+    if loss_csv.exists():
+        outputs["loss_curve"] = plot_loss(pd.read_csv(loss_csv), figures)
+    energy_test = analysis / "energy_test_parity.csv"
+    if energy_test.exists():
+        outputs["energy_test_parity"] = plot_parity(
+            pd.read_csv(energy_test),
+            "dft_energy_eV_per_atom",
+            "nep_energy_eV_per_atom",
+            figures,
+            "energy_test_parity",
+        )
+    force_test = analysis / "force_test_parity.csv"
+    if force_test.exists():
+        outputs["force_test_parity"] = plot_parity(
+            pd.read_csv(force_test),
+            "dft_force_eV_per_A",
+            "nep_force_eV_per_A",
+            figures,
+            "force_test_parity",
+        )
     return outputs

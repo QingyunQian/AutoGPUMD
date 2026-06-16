@@ -200,6 +200,7 @@ examples/**/raw/
 examples/**/figures/*.png
 !examples/al_nvt_mock/figures/*.png
 !examples/si_diffusion_real/figures/*.png
+!examples/pbte_nep_real/figures/*.png
 examples/**/thermo*.csv
 examples/**/trajectory*.xyz
 examples/**/structure.xyz

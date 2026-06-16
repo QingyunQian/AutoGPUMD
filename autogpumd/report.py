@@ -129,8 +129,8 @@ def _md_report_lines(workdir: Path, metadata: Any, summary: dict[str, Any]) -> l
             "",
             "## Next steps",
             "",
-            "- PbTe NEP tutorial loss/parity analysis.",
             "- A800 real GPUMD run with a traceable user-provided potential.",
+            "- Compact NEP training mini-demo with documented input data provenance.",
             "- High-temperature diffusion and confined-system case studies.",
         ]
     )
@@ -138,7 +138,10 @@ def _md_report_lines(workdir: Path, metadata: Any, summary: dict[str, Any]) -> l
 
 
 def _nep_report_lines(metadata: Any, summary: dict[str, Any]) -> list[str]:
-    return [
+    outputs = summary.get("outputs", {})
+    skipped = summary.get("skipped", [])
+    assumptions = summary.get("parser_assumptions", metadata.parser_assumptions)
+    lines = [
         "# AutoGPUMD NEP Workflow Report",
         "",
         f"**Data mode: {metadata.data_mode}**",
@@ -146,12 +149,61 @@ def _nep_report_lines(metadata: Any, summary: dict[str, Any]) -> list[str]:
         "",
         "## Overview",
         "",
-        "NEP tutorial-output reporting is planned for v0.1+.",
+        (
+            "This report summarizes imported NEP tutorial-output files. It does not retrain a "
+            "potential and does not claim that the tutorial potential was produced by AutoGPUMD."
+        ),
         "",
-        "## Parser assumptions",
+        "## Data provenance",
         "",
-        *(f"- {item}" for item in summary.get("parser_assumptions", metadata.parser_assumptions)),
+        _provenance_text(metadata),
+        "",
+        "## Loss curve",
+        "",
     ]
+    if "loss_csv" in outputs:
+        lines.append("Loss data were parsed from `loss.out` using the official tutorial plotting convention.")
+        lines.append("")
+        lines.append("![Loss curve](figures/loss_curve.png)")
+    else:
+        lines.append("Loss output was not available or could not be parsed.")
+    lines.extend(["", "## Energy and force evaluation", ""])
+    if "energy_train_rmse_eV_per_atom" in outputs:
+        lines.append(f"- Train energy RMSE: {outputs['energy_train_rmse_eV_per_atom']:.6f} eV/atom")
+    if "energy_test_rmse_eV_per_atom" in outputs:
+        lines.append(f"- Test energy RMSE: {outputs['energy_test_rmse_eV_per_atom']:.6f} eV/atom")
+    if "force_train_rmse_eV_per_A" in outputs:
+        lines.append(f"- Train force RMSE: {outputs['force_train_rmse_eV_per_A']:.6f} eV/Angstrom")
+    if "force_test_rmse_eV_per_A" in outputs:
+        lines.append(f"- Test force RMSE: {outputs['force_test_rmse_eV_per_A']:.6f} eV/Angstrom")
+    if "energy_test_parity_csv" in outputs:
+        lines.extend(["", "![Energy parity](figures/energy_test_parity.png)"])
+    if "force_test_parity_csv" in outputs:
+        lines.extend(["", "![Force parity](figures/force_test_parity.png)"])
+    if skipped:
+        lines.extend(["", "## Skipped analyses", ""])
+        lines.extend(f"- {item}" for item in skipped)
+    lines.extend(
+        [
+            "",
+            "## Parser assumptions",
+            "",
+            *(f"- {item}" for item in assumptions),
+            "",
+            "## Limitations",
+            "",
+            "- This is not a replacement for GPUMD, GPUMDkit, NEP training tools, or official tutorials.",
+            "- Tutorial outputs are used for learning and workflow demonstration.",
+            "- Real NEP training decisions require careful dataset, hyperparameter, and validation review.",
+            "",
+            "## Next steps",
+            "",
+            "- Extend the same workflow to a small real GPUMD run with a traceable user-provided NEP potential.",
+            "- Add a compact NEP training mini-demo only after input data provenance and runtime assumptions are clear.",
+            "- Compare tutorial-output diagnostics with future A800-generated outputs.",
+        ]
+    )
+    return lines
 
 
 def _provenance_text(metadata: Any) -> str:

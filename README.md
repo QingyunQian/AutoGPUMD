@@ -13,7 +13,7 @@ Computational materials projects often lose time at workflow boundaries: checkin
 The v0.1 goal is to show that the workflow can:
 
 - run a complete mock MD pipeline on a laptop;
-- import official GPUMD tutorial outputs;
+- import official GPUMD tutorial outputs for Si diffusion;
 - analyze thermo/RDF/MSD data;
 - generate figures and provenance-aware reports;
 - expose `agent/tools.yaml` and prompt templates for future LLM-agent workflows.
@@ -23,7 +23,8 @@ The v0.1 goal is to show that the workflow can:
 | Mode | Purpose | Requirement | Report label |
 | --- | --- | --- | --- |
 | Mock workflow | Full local demo and tests | Python only | `Data mode: MOCK` |
-| Real tutorial output | Analyze official GPUMD-Tutorials outputs | Cloned tutorial repo | `Data mode: REAL TUTORIAL OUTPUT` |
+| Real tutorial output | Analyze official Si diffusion GPUMD-Tutorials outputs | Cloned tutorial repo | `Data mode: REAL TUTORIAL OUTPUT` |
+| Optional NEP tutorial preview | Analyze official PbTe NEP loss/parity outputs | Cloned tutorial repo | `Data mode: REAL TUTORIAL OUTPUT` |
 | Real GPUMD run | Future A800/user run path | GPUMD, GPU, traceable `nep.txt` | `Data mode: REAL GPUMD RUN / USER-PROVIDED NEP` |
 
 Mock data are synthetic. Tutorial outputs are used for learning and workflow demonstration. Real GPUMD results require a valid executable, suitable runtime environment, and user-provided official or traceable NEP potential.
@@ -51,6 +52,18 @@ The Si diffusion example imports official GPUMD-Tutorials output and analyzes th
 | MSD | SDC |
 | --- | --- |
 | ![Si diffusion MSD](examples/si_diffusion_real/figures/msd.png) | ![Si diffusion SDC](examples/si_diffusion_real/figures/sdc.png) |
+
+### Optional PbTe NEP Tutorial-Output Preview
+
+The PbTe example is a v0.1+ preview that imports official GPUMD-Tutorials NEP evaluation outputs and plots the loss curve plus energy/force parity diagnostics. These are tutorial outputs, not AutoGPUMD-trained potentials.
+
+| Loss curve | Energy parity |
+| --- | --- |
+| ![PbTe NEP loss curve](examples/pbte_nep_real/figures/loss_curve.png) | ![PbTe NEP energy parity](examples/pbte_nep_real/figures/energy_test_parity.png) |
+
+| Force parity |
+| --- |
+| ![PbTe NEP force parity](examples/pbte_nep_real/figures/force_test_parity.png) |
 
 ## Quickstart: Mock Workflow
 
@@ -111,18 +124,29 @@ Expected outputs:
 
 For the Si diffusion tutorial, `msd.out` and `sdc.out` are interpreted consistently with the official `plot_results.m`; MSD is the mean of columns 2-4, and SDC from VAC is the mean of columns 5-7. Thermo figures are generated only when `thermo.out` has recognizable named columns; unsupported anonymous columns are skipped rather than guessed.
 
+Optional PbTe NEP tutorial-output preview:
+
+```bash
+uv run autogpumd import-example pbte-nep --source external/GPUMD-Tutorials
+uv run autogpumd analyze-nep examples/pbte_nep_real
+uv run autogpumd report examples/pbte_nep_real
+```
+
+This parses the official tutorial loss/parity output files. It does not run NEP training and does not claim the tutorial potential was produced by AutoGPUMD.
+
 ## Optional Real GPUMD Run on A800
 
 This is a v0.2 path, not a v0.1 blocker. If you have GPUMD available on an A800 node and a traceable `nep.txt`, the intended workflow is:
 
 ```bash
-uv run autogpumd prepare configs/al_nvt.yaml
-uv run autogpumd run examples/al_nvt_mock --gpumd gpumd
-uv run autogpumd analyze examples/al_nvt_mock --thermo --rdf --msd
-uv run autogpumd report examples/al_nvt_mock
+uv run autogpumd validate configs/al_nvt_real.yaml
+uv run autogpumd prepare configs/al_nvt_real.yaml
+uv run autogpumd run examples/al_nvt_real --gpumd gpumd
+uv run autogpumd analyze examples/al_nvt_real --thermo --rdf --msd
+uv run autogpumd report examples/al_nvt_real
 ```
 
-Before treating results scientifically, verify the GPUMD version, input syntax, potential source, and output parser assumptions.
+Place a traceable user-provided potential at `potentials/Al/nep.txt` or edit the config path before `prepare`. Before treating results scientifically, verify the GPUMD version, input syntax, potential source, and output parser assumptions.
 
 ## CLI
 
@@ -134,6 +158,8 @@ autogpumd run WORKDIR [--gpumd gpumd] [--mock]
 autogpumd analyze WORKDIR [--thermo] [--rdf] [--msd]
 autogpumd report WORKDIR
 autogpumd import-example si-diffusion --source PATH
+autogpumd import-example pbte-nep --source PATH
+autogpumd analyze-nep WORKDIR
 autogpumd agent-tools
 ```
 
@@ -166,7 +192,7 @@ tests/           lightweight pytest suite
 - Mock outputs are synthetic and are not physical GPUMD results.
 - Official tutorial outputs are not original AutoGPUMD simulations.
 - Real NEP potentials are never fabricated, bundled, or guessed.
-- Current parsers support AutoGPUMD mock thermo CSV, simple XYZ/extended XYZ, and the Si diffusion tutorial MSD/SDC table convention.
+- Current parsers support AutoGPUMD mock thermo CSV, simple XYZ/extended XYZ, the Si diffusion tutorial MSD/SDC table convention, and the PbTe NEP tutorial loss/parity table convention.
 - Large trajectories, imported raw files, and local external clones are ignored by default.
 
 ## Roadmap
@@ -181,9 +207,8 @@ tests/           lightweight pytest suite
 
 ### v0.1+
 
-- PbTe NEP tutorial analysis.
-- NEP loss and parity plots.
-- Improved parser support for official tutorial formats.
+- Optional PbTe NEP tutorial-output loss/parity analysis.
+- Improved parser support for additional official tutorial formats.
 
 ### v0.2
 

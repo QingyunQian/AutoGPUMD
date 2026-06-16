@@ -57,6 +57,6 @@ RDF analysis was not available.
 
 ## Next steps
 
-- PbTe NEP tutorial loss/parity analysis.
 - A800 real GPUMD run with a traceable user-provided potential.
+- Compact NEP training mini-demo with documented input data provenance.
 - High-temperature diffusion and confined-system case studies.

@@ -1,0 +1,9 @@
+data_mode: REAL TUTORIAL OUTPUT
+example_type: nep
+source_path: official GPUMD-Tutorials / examples/11_NEP_potential_PbTe
+original_simulation_results: false
+parser_assumptions:
+- loss.out follows official plot_results.m columns
+- energy_*.out columns are NEP energy then DFT energy
+- force_*.out columns 1-3 are NEP force components and columns 4-6 are DFT force components
+generated_timestamp: '2026-06-16T13:50:38+00:00'

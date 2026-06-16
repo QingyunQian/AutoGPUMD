@@ -123,6 +123,24 @@ def report(workdir: Path) -> None:
     typer.echo(f"Wrote report: {path}")
 
 
+@app.command("analyze-nep")
+def analyze_nep(workdir: Path) -> None:
+    """Analyze supported NEP tutorial-output files and generate figures."""
+    from autogpumd.nep_analysis import analyze_nep_workdir
+    from autogpumd.plotting import plot_nep_workdir
+
+    try:
+        outputs = analyze_nep_workdir(workdir)
+        figures = plot_nep_workdir(workdir)
+    except (FileNotFoundError, ValueError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo("NEP analysis completed:")
+    for name, path in outputs.items():
+        typer.echo(f"  {name}: {path}")
+    for name, path in figures.items():
+        typer.echo(f"  figure_{name}: {path}")
+
+
 @app.command("agent-tools")
 def agent_tools() -> None:
     """Print the agent tool harness definition."""
