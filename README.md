@@ -55,7 +55,7 @@ The Si diffusion example imports official GPUMD-Tutorials output and analyzes th
 
 ### Optional PbTe NEP Tutorial-Output Preview
 
-The PbTe example is a v0.1+ preview that imports official GPUMD-Tutorials NEP evaluation outputs and plots the loss curve plus energy/force parity diagnostics. These are tutorial outputs, not AutoGPUMD-trained potentials. In the parity plots, the horizontal axis is the DFT reference value and the vertical axis is the NEP prediction; the diagonal line marks perfect agreement.
+The PbTe example imports official GPUMD-Tutorials NEP evaluation outputs and plots the loss curve plus energy/force parity diagnostics. These are tutorial outputs, not AutoGPUMD-trained potentials. In the parity plots, the horizontal axis is the DFT reference value and the vertical axis is the NEP prediction; the diagonal line marks perfect agreement.
 
 | Loss curve | Energy parity |
 | --- | --- |
@@ -136,7 +136,7 @@ This parses the official tutorial loss/parity output files. It does not run NEP 
 
 ## Optional Real GPUMD Run on A800
 
-This is a v0.2 path, not a v0.1 blocker. If you have GPUMD available on an A800 node and a traceable `nep.txt`, the intended workflow is:
+If GPUMD is available on an A800 node and a traceable `nep.txt` is provided by the user, the intended workflow is:
 
 ```bash
 uv run autogpumd validate configs/al_nvt_real.yaml
@@ -193,34 +193,6 @@ tests/           lightweight pytest suite
 - Real NEP potentials are never fabricated, bundled, or guessed.
 - Current parsers support AutoGPUMD mock thermo CSV, simple XYZ/extended XYZ, the Si diffusion tutorial MSD/SDC table convention, and the PbTe NEP tutorial loss/parity table convention.
 - Large trajectories, imported raw files, and local external clones are ignored by default.
-
-## Roadmap
-
-### v0.1
-
-- Mock workflow.
-- Official Si diffusion tutorial-output import and analysis.
-- Professor-facing README and provenance-aware reports.
-- Agent prompts/tools.
-- Tests without GPUMD/GPU.
-
-### v0.1+
-
-- Optional PbTe NEP tutorial-output loss/parity analysis.
-- Improved parser support for additional official tutorial formats.
-
-### v0.2
-
-- A800 real GPUMD run.
-- Official/user-provided traceable `nep.txt`.
-- Real NVT MD demo.
-
-### v0.3
-
-- NEP training mini-demo.
-- High-temperature diffusion case study.
-- Confined-system toy case study.
-- MCP server or skills integration.
 
 ## Citation and Disclaimer
 
