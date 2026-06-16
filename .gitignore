@@ -5,6 +5,7 @@ __pycache__/
 .DS_Store
 **/.DS_Store
 AGENTS.md
+scripts/submit_gpumd.slurm
 
 # C extensions
 *.so

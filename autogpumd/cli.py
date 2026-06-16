@@ -149,20 +149,5 @@ def agent_tools() -> None:
         raise typer.BadParameter(f"Missing agent tools file: {path}")
     typer.echo(path.read_text(encoding="utf-8"))
 
-
-@app.command()
-def submit(
-    workdir: Path,
-    scheduler: str = typer.Option("slurm", "--scheduler"),
-) -> None:
-    """Copy a simple scheduler script into the workdir."""
-    if scheduler != "slurm":
-        raise typer.BadParameter("Only --scheduler slurm is supported in the MVP.")
-    src = Path(__file__).resolve().parent.parent / "scripts" / "submit_gpumd.slurm"
-    dst = workdir / "submit_gpumd.slurm"
-    dst.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
-    typer.echo(f"Wrote {dst}")
-
-
 if __name__ == "__main__":
     app()

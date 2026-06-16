@@ -25,7 +25,7 @@ The v0.1 goal is to show that the workflow can:
 | Mock workflow | Full local demo and tests | Python only | `Data mode: MOCK` |
 | Real tutorial output | Analyze official Si diffusion GPUMD-Tutorials outputs | Cloned tutorial repo | `Data mode: REAL TUTORIAL OUTPUT` |
 | Optional NEP tutorial preview | Analyze official PbTe NEP loss/parity outputs | Cloned tutorial repo | `Data mode: REAL TUTORIAL OUTPUT` |
-| Real GPUMD run | Future A800/user run path | GPUMD, GPU, traceable `nep.txt` | `Data mode: REAL GPUMD RUN / USER-PROVIDED NEP` |
+| Real GPUMD run | Future A800 direct-run path | GPUMD, GPU, traceable `nep.txt` | `Data mode: REAL GPUMD RUN / USER-PROVIDED NEP` |
 
 Mock data are synthetic. Tutorial outputs are used for learning and workflow demonstration. Real GPUMD results require a valid executable, suitable runtime environment, and user-provided official or traceable NEP potential.
 
@@ -35,9 +35,9 @@ The repository includes a small set of generated figures for quick preview. They
 
 ### Mock MD Workflow
 
-Mock mode exercises the full local pipeline: synthetic thermo data, RDF, MSD, plots, and a provenance-aware report. These figures are not physical GPUMD simulation results.
+Mock mode exercises the full local pipeline: synthetic thermo data, RDF, MSD, plots, and a provenance-aware report. These figures are not physical GPUMD simulation results. The energy panel shows drift relative to the initial value, which makes stability easier to inspect than plotting absolute potential, kinetic, and total energies on one axis.
 
-| Temperature | Energy |
+| Temperature | Energy drift |
 | --- | --- |
 | ![Mock temperature](examples/al_nvt_mock/figures/temperature.png) | ![Mock energy](examples/al_nvt_mock/figures/energy.png) |
 
@@ -55,7 +55,7 @@ The Si diffusion example imports official GPUMD-Tutorials output and analyzes th
 
 ### Optional PbTe NEP Tutorial-Output Preview
 
-The PbTe example is a v0.1+ preview that imports official GPUMD-Tutorials NEP evaluation outputs and plots the loss curve plus energy/force parity diagnostics. These are tutorial outputs, not AutoGPUMD-trained potentials.
+The PbTe example is a v0.1+ preview that imports official GPUMD-Tutorials NEP evaluation outputs and plots the loss curve plus energy/force parity diagnostics. These are tutorial outputs, not AutoGPUMD-trained potentials. In the parity plots, the horizontal axis is the DFT reference value and the vertical axis is the NEP prediction; the diagonal line marks perfect agreement.
 
 | Loss curve | Energy parity |
 | --- | --- |
@@ -182,7 +182,6 @@ autogpumd/       Python package and CLI implementation
 configs/         example YAML workflow configs
 examples/        mock and tutorial-output example folders
 agent/           tool definitions and prompt templates
-scripts/         optional scheduler template
 tutorials/       planned tutorial notes
 tests/           lightweight pytest suite
 ```
@@ -215,7 +214,6 @@ tests/           lightweight pytest suite
 - A800 real GPUMD run.
 - Official/user-provided traceable `nep.txt`.
 - Real NVT MD demo.
-- Optional Slurm template validation.
 
 ### v0.3
 
