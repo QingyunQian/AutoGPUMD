@@ -82,9 +82,10 @@ Expected outputs:
 - `examples/si_diffusion_real/metadata.yaml`
 - `examples/si_diffusion_real/analysis/analysis_summary.json`
 - `examples/si_diffusion_real/figures/msd.png`
+- `examples/si_diffusion_real/figures/sdc.png`
 - `examples/si_diffusion_real/report.md`
 
-Thermo figures are generated only when `thermo.out` has recognizable named columns. Unsupported anonymous columns are skipped rather than guessed.
+For the Si diffusion tutorial, `msd.out` and `sdc.out` are interpreted consistently with the official `plot_results.m`; MSD is the mean of columns 2-4, and SDC from VAC is the mean of columns 5-7. Thermo figures are generated only when `thermo.out` has recognizable named columns; unsupported anonymous columns are skipped rather than guessed.
 
 ## Optional Real GPUMD Run on A800
 
@@ -141,7 +142,7 @@ tests/           lightweight pytest suite
 - Mock outputs are synthetic and are not physical GPUMD results.
 - Official tutorial outputs are not original AutoGPUMD simulations.
 - Real NEP potentials are never fabricated, bundled, or guessed.
-- Current parsers support AutoGPUMD mock thermo CSV, simple XYZ/extended XYZ, and conservative tutorial-output tables.
+- Current parsers support AutoGPUMD mock thermo CSV, simple XYZ/extended XYZ, and the Si diffusion tutorial MSD/SDC table convention.
 - Large trajectories, imported raw files, and local external clones are ignored by default.
 
 ## Roadmap

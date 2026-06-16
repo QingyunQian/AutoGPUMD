@@ -84,6 +84,30 @@ def plot_msd(msd_df: pd.DataFrame, outdir: str | Path) -> Path:
     return path
 
 
+def plot_sdc(sdc_df: pd.DataFrame, outdir: str | Path) -> Path:
+    plt = _pyplot()
+    outdir = Path(outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    path = outdir / "sdc.png"
+    fig, ax = plt.subplots(figsize=(6, 4))
+    if "sdc_from_vac_A2_per_ps" in sdc_df.columns:
+        ax.plot(
+            sdc_df["time_ps"],
+            sdc_df["sdc_from_vac_A2_per_ps"],
+            label="SDC from VAC",
+            color="#5b6f9f",
+        )
+    ax.set_xlabel("Time (ps)")
+    ax.set_ylabel("SDC (Angstrom^2/ps)")
+    ax.set_title("Self-diffusion coefficient estimate")
+    if ax.get_legend_handles_labels()[0]:
+        ax.legend()
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
 def plot_workdir(workdir: Path, *, thermo: bool, rdf: bool, msd: bool) -> dict[str, Path]:
     from autogpumd.analysis import THERMO_CANDIDATES, find_first, read_thermo
 
@@ -105,4 +129,7 @@ def plot_workdir(workdir: Path, *, thermo: bool, rdf: bool, msd: bool) -> dict[s
         msd_csv = workdir / "analysis" / "msd.csv"
         if msd_csv.exists():
             outputs["msd"] = plot_msd(pd.read_csv(msd_csv), figures)
+        sdc_csv = workdir / "analysis" / "sdc.csv"
+        if sdc_csv.exists():
+            outputs["sdc"] = plot_sdc(pd.read_csv(sdc_csv), figures)
     return outputs

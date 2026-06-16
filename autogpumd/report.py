@@ -99,11 +99,15 @@ def _md_report_lines(workdir: Path, metadata: Any, summary: dict[str, Any]) -> l
             lines.append("- Mock-mode MSD is synthetic and should not be read as a real diffusivity.")
         elif metadata.data_mode == REAL_TUTORIAL_MODE:
             lines.append("- Tutorial-output MSD is imported for workflow demonstration.")
+        if (workdir / "analysis" / "sdc.csv").exists():
+            lines.append("- SDC data were parsed from the tutorial `sdc.out` file when available.")
     else:
         lines.append("MSD/diffusion analysis was not available.")
     lines.append("")
     if (workdir / "figures" / "msd.png").exists():
         lines.extend(["![MSD](figures/msd.png)", ""])
+    if (workdir / "figures" / "sdc.png").exists():
+        lines.extend(["![SDC](figures/sdc.png)", ""])
 
     if skipped:
         lines.extend(["## Skipped analyses", ""])

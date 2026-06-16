@@ -17,6 +17,7 @@ from autogpumd.metadata import infer_metadata
 THERMO_CANDIDATES = ("thermo_mock.csv", "thermo.csv", "thermo.out")
 TRAJECTORY_CANDIDATES = ("trajectory_mock.xyz", "trajectory.xyz", "dump.xyz")
 MSD_CANDIDATES = ("msd.csv", "msd.out")
+SDC_CANDIDATES = ("sdc.csv", "sdc.out")
 
 
 @dataclass(frozen=True)
@@ -145,12 +146,52 @@ def read_msd(path: str | Path) -> pd.DataFrame:
         df = _read_numeric_table(path)
         if df.empty or df.shape[1] < 2:
             raise ValueError(f"MSD file must contain at least two numeric columns: {path}")
+        if df.shape[1] >= 7 and "time_ps" not in df.columns:
+            # GPUMD Si diffusion tutorial: plot_results.m uses mean(msd(:,2:4),2)
+            # for MSD and mean(msd(:,5:7),2) for SDC from MSD.
+            return pd.DataFrame(
+                {
+                    "frame": np.arange(len(df)),
+                    "time_ps": df.iloc[:, 0],
+                    "msd_A2": df.iloc[:, 1:4].mean(axis=1),
+                    "sdc_from_msd_A2_per_ps": df.iloc[:, 4:7].mean(axis=1),
+                }
+            )
         if "time_ps" not in df.columns or "msd_A2" not in df.columns:
             df = df.rename(columns={df.columns[0]: "time_ps", df.columns[1]: "msd_A2"})
     missing = {"time_ps", "msd_A2"}.difference(df.columns)
     if missing:
         raise ValueError(f"MSD file is missing required columns: {sorted(missing)}")
     out = df[["time_ps", "msd_A2"]].copy()
+    out.insert(0, "frame", np.arange(len(out)))
+    return out
+
+
+def read_sdc(path: str | Path) -> pd.DataFrame:
+    path = Path(path)
+    if path.suffix == ".csv":
+        df = pd.read_csv(path)
+    else:
+        df = _read_numeric_table(path)
+        if df.empty or df.shape[1] < 4:
+            raise ValueError(f"SDC file must contain at least four numeric columns: {path}")
+        if df.shape[1] >= 7 and "time_ps" not in df.columns:
+            # GPUMD Si diffusion tutorial: plot_results.m uses mean(sdc(:,2:4),2)
+            # for VAC and mean(sdc(:,5:7),2) for SDC from VAC.
+            return pd.DataFrame(
+                {
+                    "frame": np.arange(len(df)),
+                    "time_ps": df.iloc[:, 0],
+                    "vac_A2_per_ps2": df.iloc[:, 1:4].mean(axis=1),
+                    "sdc_from_vac_A2_per_ps": df.iloc[:, 4:7].mean(axis=1),
+                }
+            )
+        if "time_ps" not in df.columns or "sdc_from_vac_A2_per_ps" not in df.columns:
+            df = df.rename(columns={df.columns[0]: "time_ps", df.columns[1]: "sdc_from_vac_A2_per_ps"})
+    missing = {"time_ps", "sdc_from_vac_A2_per_ps"}.difference(df.columns)
+    if missing:
+        raise ValueError(f"SDC file is missing required columns: {sorted(missing)}")
+    out = df[[column for column in ("time_ps", "vac_A2_per_ps2", "sdc_from_vac_A2_per_ps") if column in df.columns]].copy()
     out.insert(0, "frame", np.arange(len(out)))
     return out
 
@@ -236,6 +277,15 @@ def analyze_workdir(
             outputs["diffusion_csv"] = diffusion_out
             if msd_source is not None:
                 parser_assumptions.append(f"MSD parsed from {msd_source.name}")
+            try:
+                sdc_source = find_first(workdir, SDC_CANDIDATES)
+                sdc_df = read_sdc(sdc_source)
+                sdc_out = analysis_dir / "sdc.csv"
+                sdc_df.to_csv(sdc_out, index=False)
+                outputs["sdc_csv"] = sdc_out
+                parser_assumptions.append(f"SDC parsed from {sdc_source.name}")
+            except (FileNotFoundError, ValueError) as exc:
+                skipped.append(f"sdc: {exc}")
         except (FileNotFoundError, ValueError) as exc:
             skipped.append(f"msd: {exc}")
     summary_path = write_analysis_summary(

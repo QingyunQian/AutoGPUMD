@@ -25,8 +25,18 @@ def test_import_si_diffusion_and_analyze_raw_outputs(tmp_path: Path) -> None:
         + "\n",
         encoding="utf-8",
     )
-    (tutorial / "msd.out").write_text("0.0 0.0\n0.1 0.02\n0.2 0.05\n", encoding="utf-8")
-    (tutorial / "sdc.out").write_text("# optional tutorial file\n", encoding="utf-8")
+    (tutorial / "msd.out").write_text(
+        "0.0 0.0 0.0 0.0 0.0 0.0 0.0\n"
+        "0.1 1.0 2.0 3.0 4.0 5.0 6.0\n"
+        "0.2 2.0 3.0 4.0 5.0 6.0 7.0\n",
+        encoding="utf-8",
+    )
+    (tutorial / "sdc.out").write_text(
+        "0.0 1.0 1.0 1.0 0.0 0.0 0.0\n"
+        "0.1 2.0 3.0 4.0 6.0 7.0 8.0\n"
+        "0.2 3.0 4.0 5.0 7.0 8.0 9.0\n",
+        encoding="utf-8",
+    )
 
     outputs = import_example("si-diffusion", source=tmp_path / "external" / "GPUMD-Tutorials", destination_root=tmp_path)
     workdir = outputs["workdir"]
@@ -42,8 +52,11 @@ def test_import_si_diffusion_and_analyze_raw_outputs(tmp_path: Path) -> None:
     assert analysis_outputs["analysis_summary_json"].exists()
     assert (workdir / "analysis" / "thermo.csv").exists()
     assert (workdir / "analysis" / "msd.csv").exists()
+    assert (workdir / "analysis" / "sdc.csv").exists()
+    assert (workdir / "analysis" / "msd.csv").read_text(encoding="utf-8").splitlines()[2].startswith("1,0.1,2.0,5.0")
     assert figures["temperature"].exists()
     assert figures["msd"].exists()
+    assert figures["sdc"].exists()
     text = report.read_text(encoding="utf-8")
     assert "Data mode: REAL TUTORIAL OUTPUT" in text
     assert "official GPUMD-Tutorials / examples/09_Silicon_diffusion" in text

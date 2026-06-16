@@ -93,7 +93,8 @@ def import_si_diffusion(
         parser_assumptions=[
             "Searches raw/ and workdir root for supported files",
             "thermo.out must include recognizable named columns to be parsed",
-            "msd.out is interpreted as two-column time/MSD when no header is present",
+            "Si diffusion msd.out follows official plot_results.m; time in column 1 and MSD as mean columns 2-4",
+            "Si diffusion sdc.out follows official plot_results.m; time in column 1 and SDC from VAC as mean columns 5-7",
         ],
         generated_timestamp=now_timestamp(),
     )
