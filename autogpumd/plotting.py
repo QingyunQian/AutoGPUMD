@@ -39,12 +39,16 @@ def plot_thermo(df: pd.DataFrame, outdir: str | Path) -> dict[str, Path]:
 
     energy_path = outdir / "energy.png"
     fig, ax = plt.subplots(figsize=(6, 4))
-    ax.plot(df["time_ps"], df["potential_energy_eV"], label="Potential", color="#7a4f9a")
-    ax.plot(df["time_ps"], df["kinetic_energy_eV"], label="Kinetic", color="#c56b43")
-    ax.plot(df["time_ps"], df["total_energy_eV"], label="Total", color="#2e7d54")
+    energy_columns = {
+        "Potential": ("potential_energy_eV", "#7a4f9a"),
+        "Kinetic": ("kinetic_energy_eV", "#c56b43"),
+        "Total": ("total_energy_eV", "#2e7d54"),
+    }
+    for label, (column, color) in energy_columns.items():
+        ax.plot(df["time_ps"], df[column] - df[column].iloc[0], label=label, color=color)
     ax.set_xlabel("Time (ps)")
-    ax.set_ylabel("Energy (eV)")
-    ax.set_title("Energy vs time")
+    ax.set_ylabel("Energy change from initial value (eV)")
+    ax.set_title("Energy drift vs time")
     ax.legend()
     fig.tight_layout()
     fig.savefig(energy_path, dpi=180)
@@ -135,7 +139,16 @@ def plot_loss(loss_df: pd.DataFrame, outdir: str | Path) -> Path:
     return path
 
 
-def plot_parity(df: pd.DataFrame, x_col: str, y_col: str, outdir: str | Path, name: str) -> Path:
+def plot_parity(
+    df: pd.DataFrame,
+    x_col: str,
+    y_col: str,
+    outdir: str | Path,
+    name: str,
+    *,
+    x_label: str = "DFT reference",
+    y_label: str = "NEP prediction",
+) -> Path:
     plt = _pyplot()
     outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
@@ -145,8 +158,8 @@ def plot_parity(df: pd.DataFrame, x_col: str, y_col: str, outdir: str | Path, na
     lo = min(float(df[x_col].min()), float(df[y_col].min()))
     hi = max(float(df[x_col].max()), float(df[y_col].max()))
     ax.plot([lo, hi], [lo, hi], color="#333333", linewidth=1)
-    ax.set_xlabel("DFT")
-    ax.set_ylabel("NEP")
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
     ax.set_title(name.replace("_", " ").title())
     fig.tight_layout()
     fig.savefig(path, dpi=180)
@@ -197,6 +210,8 @@ def plot_nep_workdir(workdir: str | Path) -> dict[str, Path]:
             "nep_energy_eV_per_atom",
             figures,
             "energy_test_parity",
+            x_label="DFT energy (eV/atom)",
+            y_label="NEP energy (eV/atom)",
         )
     force_test = analysis / "force_test_parity.csv"
     if force_test.exists():
@@ -206,5 +221,7 @@ def plot_nep_workdir(workdir: str | Path) -> dict[str, Path]:
             "nep_force_eV_per_A",
             figures,
             "force_test_parity",
+            x_label="DFT force (eV/Angstrom)",
+            y_label="NEP force (eV/Angstrom)",
         )
     return outputs

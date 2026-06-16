@@ -50,9 +50,15 @@ analysis:
 
     outputs = run_workdir(config.workdir, mock=True)
     assert outputs["thermo"].exists()
+    thermo_lines = outputs["thermo"].read_text(encoding="utf-8").splitlines()
+    trajectory_lines = outputs["trajectory"].read_text(encoding="utf-8").splitlines()
+    assert trajectory_lines[0] == "32"
+    assert thermo_lines[1].split(",")[3] == "-107.2"
     analysis_outputs = analyze_workdir(config.workdir, thermo=True, rdf=True, msd=True)
     figures = plot_workdir(config.workdir, thermo=True, rdf=True, msd=True)
     assert analysis_outputs["thermo_summary_csv"].exists()
+    msd_text = (config.workdir / "analysis" / "msd.csv").read_text(encoding="utf-8")
+    assert max(float(line.split(",")[2]) for line in msd_text.splitlines()[1:]) < 5.0
     assert figures["temperature"].exists()
     assert figures["rdf"].exists()
 

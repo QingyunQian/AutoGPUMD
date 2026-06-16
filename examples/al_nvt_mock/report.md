@@ -23,7 +23,7 @@ These are synthetic mock data generated for workflow testing and are not physica
 - Samples: 60
 - Mean temperature: 300.13 K
 - Temperature standard deviation: 5.79 K
-- Total energy drift: 0.0110 eV
+- Total energy drift: 0.0439 eV
 
 ![Temperature](figures/temperature.png)
 
@@ -37,7 +37,7 @@ RDF data were generated from the mock XYZ trajectory and illustrate the pipeline
 
 ## MSD and diffusion observations
 
-- Estimated diffusion slope proxy: 0.543086 Angstrom^2/ps
+- Estimated diffusion slope proxy: 0.106915 Angstrom^2/ps
 - Mock-mode MSD is synthetic and should not be read as a real diffusivity.
 
 ![MSD](figures/msd.png)
