@@ -28,6 +28,30 @@ The v0.1 goal is to show that the workflow can:
 
 Mock data are synthetic. Tutorial outputs are used for learning and workflow demonstration. Real GPUMD results require a valid executable, suitable runtime environment, and user-provided official or traceable NEP potential.
 
+## Demo Results
+
+The repository includes a small set of generated figures for quick preview. They are committed as lightweight demonstration artifacts; raw imported tutorial files and intermediate CSV/JSON outputs remain ignored by default.
+
+### Mock MD Workflow
+
+Mock mode exercises the full local pipeline: synthetic thermo data, RDF, MSD, plots, and a provenance-aware report. These figures are not physical GPUMD simulation results.
+
+| Temperature | Energy |
+| --- | --- |
+| ![Mock temperature](examples/al_nvt_mock/figures/temperature.png) | ![Mock energy](examples/al_nvt_mock/figures/energy.png) |
+
+| RDF | MSD |
+| --- | --- |
+| ![Mock RDF](examples/al_nvt_mock/figures/rdf.png) | ![Mock MSD](examples/al_nvt_mock/figures/msd.png) |
+
+### Official Si Diffusion Tutorial Output
+
+The Si diffusion example imports official GPUMD-Tutorials output and analyzes the MSD/SDC files using the same column convention as the tutorial `plot_results.m`.
+
+| MSD | SDC |
+| --- | --- |
+| ![Si diffusion MSD](examples/si_diffusion_real/figures/msd.png) | ![Si diffusion SDC](examples/si_diffusion_real/figures/sdc.png) |
+
 ## Quickstart: Mock Workflow
 
 Use Python 3.10 or newer.
