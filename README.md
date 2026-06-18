@@ -6,13 +6,13 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Version](https://img.shields.io/badge/version-0.1.0-64748b.svg)](pyproject.toml)
 [![Code style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
-[![License: MIT](https://img.shields.io/github/license/QingyunQian/AutoGPUMD.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![GPUMD](https://img.shields.io/badge/GPUMD-v5.5-4b5563.svg)](https://github.com/brucefan1983/GPUMD)
 [![Tutorial Provenance](https://img.shields.io/badge/data-official%20GPUMD--Tutorials-0f766e.svg)](https://github.com/brucefan1983/GPUMD-Tutorials)
 
-AutoGPUMD is a small, unofficial Python v0.1 demo for reproducible atomistic simulation workflows around GPUMD and NEP. This README focuses on GPU-executed tutorial reproductions, result analysis, plotting, and provenance-aware reporting.
+AutoGPUMD explores how to automate official GPUMD tutorials end-to-end: preparing runs, launching GPUMD, parsing outputs, comparing against references, and producing readable figures.
 
-The project is designed for a professor-facing research demo. It does not replace GPUMD, gpyumd, GPUMDkit, or official GPUMD tools.
+The goal is also educational: use AI-assisted tooling to help users learn GPUMD workflows, understand simulation outputs, and build reproducible habits around NEP-based molecular dynamics.
 
 ## At a Glance
 
@@ -33,29 +33,15 @@ The v0.1 goal is to show that the workflow can:
 - generate README-ready figures and provenance-aware summaries;
 - expose `agent/tools.yaml` and prompt templates for future LLM-agent workflows.
 
-## Reproduced Tutorials
+## Results
 
-| Tutorial | Local folder | What is demonstrated |
+All headline figures below come from local GPUMD runs. Input structures and NEP potentials are official tutorial assets, not AutoGPUMD-trained potentials. Heavy raw trajectories and runtime files stay outside git under `runs/`.
+
+| Official tutorial | Local folder | What is shown |
 | --- | --- | --- |
 | [`24_Ionic_Conductivity/1000K`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/24_Ionic_Conductivity) | `examples/a800_nep4_real/ionic_1000K` | LLZO ionic-conductivity MD with temperature, energy, and MSD analysis |
 | [`28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck) | `examples/a800_nep4_real/li3ps4_codecheck` | Li3PS4 HAC/Green-Kubo workflow check against official references |
 | [`32_DOAS_and_AEDP`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/32_DOAS_and_AEDP) | `examples/tutorial_32_doas_aedp` | LLZO DOAS/AEDP local reproduction with official-reference comparison |
-
-All headline figures below come from local GPUMD runs. Input structures and NEP potentials are official tutorial assets, not AutoGPUMD-trained potentials.
-
-## Official Tutorial Provenance
-
-Each example folder records the official source it corresponds to, and keeps its own lightweight data, summaries, and figures. Heavy raw trajectories and runtime files stay outside git under `runs/`.
-
-| Local folder | Official GPUMD-Tutorials source | What is reproduced |
-| --- | --- | --- |
-| `examples/a800_nep4_real/ionic_1000K` | [`examples/24_Ionic_Conductivity/1000K`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/24_Ionic_Conductivity) | Local GPUMD v5.5 run using official NEP4 LLZO ionic-conductivity inputs |
-| `examples/a800_nep4_real/li3ps4_codecheck` | [`examples/28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck) | Local GPUMD v5.5 CodeCheck run using official Li3PS4 HAC inputs |
-| `examples/tutorial_32_doas_aedp` | [`examples/32_DOAS_and_AEDP`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/32_DOAS_and_AEDP) | Local GPUMD MD/minimization workflow, followed by DOAS/AEDP comparison against official bundled references |
-
-## Results
-
-The repository includes lightweight figures and summaries generated from local GPUMD runs. Heavy raw runtime files remain under `runs/` and are ignored by git.
 
 ### NEP4 Tutorial Runs
 
@@ -140,17 +126,6 @@ agent/           tool definitions and prompt templates
 tutorials/       planned tutorial notes
 tests/           lightweight pytest suite
 ```
-
-## Limitations
-
-- The displayed examples are local GPUMD runs, but their input structures and NEP potentials come from official GPUMD-Tutorials assets.
-- Real NEP potentials are never fabricated, bundled, or guessed.
-- The Li3PS4 CodeCheck result is a single stochastic workflow check, not a converged thermal-conductivity claim.
-- Large trajectories, raw runtime files, and local external clones are ignored by default.
-
-## Citation and Disclaimer
-
-If this demo is used alongside real GPUMD/NEP work, cite the appropriate GPUMD and NEP papers and official documentation. AutoGPUMD is an unofficial learning/demo project and is not affiliated with or endorsed by the GPUMD developers.
 
 ## License
 
