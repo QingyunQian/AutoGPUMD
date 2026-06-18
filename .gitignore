@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 .DS_Store
 **/.DS_Store
-AGENTS.md
 scripts/submit_gpumd.slurm
 
 # C extensions
@@ -184,6 +183,7 @@ cython_debug/
 
 # AutoGPUMD local simulation artifacts
 external/
+runs/
 potentials/
 potentials/**/nep.txt
 *.lammpstrj
@@ -202,11 +202,13 @@ examples/**/figures/*.png
 !examples/al_nvt_mock/figures/*.png
 !examples/si_diffusion_real/figures/*.png
 !examples/pbte_nep_real/figures/*.png
+!examples/a800_nep4_real/**/figures/*.png
 examples/**/thermo*.csv
 examples/**/trajectory*.xyz
 examples/**/structure.xyz
 examples/**/structure_note.md
 examples/**/run.in
+!examples/a800_nep4_real/**/run.in
 examples/**/MOCK_MODE.md
 
 # PyCharm

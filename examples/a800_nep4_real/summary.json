@@ -1,0 +1,58 @@
+{
+  "gpu": "NVIDIA A800 80GB PCIe",
+  "gpumd_version": "5.5",
+  "ionic_1000K": {
+    "atoms": 12288,
+    "final_msd_A2": {
+      "La": 0.07048993333333332,
+      "Li": 19.5406,
+      "O": 0.06441556666666666,
+      "Zr": 0.06311359999999999
+    },
+    "final_sdc_cm2_s": {
+      "La": 1.8830973333333332e-08,
+      "Li": 9.687343333333334e-06,
+      "O": 3.489772666666666e-09,
+      "Zr": 2.1064123333333338e-08
+    },
+    "last_speed_atom_step_per_s": 3787510.0,
+    "max_completed_steps": 1000000,
+    "msd_rows": 1000,
+    "official_msd_li_diffusivity_cm2_s": 9.673976666666666e-06,
+    "official_readme_li_diffusivity_cm2_s": 9.667e-06,
+    "official_readme_temperature_K": 999.96,
+    "output_dir": "/home/qingyunqian/projects/AutoGPUMD/examples/a800_nep4_real/ionic_1000K",
+    "run_dir": "/home/qingyunqian/projects/AutoGPUMD/runs/nep4_ionic_1000K_short",
+    "steps": 1000000,
+    "temperature_max_K": 1028.7716139,
+    "temperature_mean_K": 999.8881089216429,
+    "temperature_min_K": 877.96279228,
+    "temperature_std_K": 7.507650970289514,
+    "thermo_rows": 10000,
+    "time_used_s": 3244.388996,
+    "total_energy_drift_eV": 187.25005930000043
+  },
+  "li3ps4_codecheck": {
+    "atoms": 6144,
+    "final_integrated_components": {
+      "component_1": 0.3097687574594193,
+      "component_2": -0.1441285448716712,
+      "component_3": 0.3597637049182717,
+      "component_4": -0.03789273646997805,
+      "component_5": 0.1167315889268442
+    },
+    "hac_last_time_ps": 9.9995,
+    "hac_rows": 10000,
+    "kz_last_W_mK": 0.1167315889268442,
+    "kz_mean_second_half_W_mK": 0.3094666505867627,
+    "last_speed_atom_step_per_s": 2563390.0,
+    "max_completed_steps": 200000,
+    "official_reference_independent_gk_mean_second_half_W_mK": 0.7800253610399999,
+    "official_reference_kz_mean_second_half_W_mK": 0.7800195350582589,
+    "output_dir": "/home/qingyunqian/projects/AutoGPUMD/examples/a800_nep4_real/li3ps4_codecheck",
+    "run_dir": "/home/qingyunqian/projects/AutoGPUMD/runs/nep4_li3ps4_codecheck_short",
+    "steps": 400000,
+    "time_used_s": 931.639434
+  },
+  "source": "official GPUMD-Tutorials NEP4 examples"
+}

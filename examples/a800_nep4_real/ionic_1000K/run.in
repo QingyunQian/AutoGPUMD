@@ -1,0 +1,8 @@
+potential ./nep.txt
+velocity    1000
+
+ensemble    npt_mttk temp 1000 1000 aniso 0 0
+compute_msd 100 1000 all_groups 0 save_every 100000
+dump_thermo 100
+dump_restart 1000000
+run        1000000
