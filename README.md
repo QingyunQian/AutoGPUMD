@@ -10,9 +10,7 @@
 [![GPUMD](https://img.shields.io/badge/GPUMD-v5.5-4b5563.svg)](https://github.com/brucefan1983/GPUMD)
 [![Tutorial Provenance](https://img.shields.io/badge/data-official%20GPUMD--Tutorials-0f766e.svg)](https://github.com/brucefan1983/GPUMD-Tutorials)
 
-AutoGPUMD explores how to automate official GPUMD tutorials end-to-end: preparing runs, launching GPUMD, parsing outputs, comparing against references, and producing readable figures.
-
-The goal is also educational: use AI-assisted tooling to help users learn GPUMD workflows, understand simulation outputs, and build reproducible habits around NEP-based molecular dynamics.
+AutoGPUMD explores how to automate official GPUMD: preparing runs, launching GPUMD, parsing outputs, comparing against references, and producing readable figures.It also uses AI assisted tooling to help users learn GPUMD workflows, understand simulation outputs, and build reproducible habits around NEP based molecular dynamics.
 
 ## At a Glance
 
@@ -23,26 +21,11 @@ The goal is also educational: use AI-assisted tooling to help users learn GPUMD 
 
 ## Why This Matters for AI-Assisted Atomistic Simulation
 
-Computational materials projects often lose time at workflow boundaries: checking inputs, tracking provenance, launching or importing runs, parsing outputs, making figures, and writing short reports. AutoGPUMD demonstrates how a conservative agent-assisted layer can help automate those steps without inventing potentials or overstating results.
-
-The v0.1 goal is to show that the workflow can:
-
-- run selected official GPUMD-Tutorials examples on GPU hardware;
-- compare local GPUMD outputs with official bundled references;
-- analyze thermo, MSD, HAC, DOAS, and AEDP outputs;
-- generate README-ready figures and provenance-aware summaries;
-- expose `agent/tools.yaml` and prompt templates for future LLM-agent workflows.
+Computational materials projects often lose time at workflow boundaries: checking inputs, tracking provenance, launching or importing runs, parsing outputs, making figures, and writing short reports. AutoGPUMD demonstrates how a conservative agent assisted layer can help automate those steps without inventing potentials or overstating results.
 
 ## Results
 
-All headline figures below come from local GPUMD runs. Input structures and NEP potentials are official tutorial assets, not AutoGPUMD-trained potentials. Heavy raw trajectories and runtime files stay outside git under `runs/`.
-
-| Official tutorial | Local folder | What is shown |
-| --- | --- | --- |
-| [`24_Ionic_Conductivity/1000K`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/24_Ionic_Conductivity) | `examples/a800_nep4_real/ionic_1000K` | LLZO ionic-conductivity MD with temperature, energy, and MSD analysis |
-| [`28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck) | `examples/a800_nep4_real/li3ps4_codecheck` | Li3PS4 HAC/Green-Kubo workflow check against official references |
-| [`32_DOAS_and_AEDP`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/32_DOAS_and_AEDP) | `examples/tutorial_32_doas_aedp` | LLZO DOAS/AEDP local reproduction with official-reference comparison |
-
+All headline figures below come from local GPUMD runs. Input structures and NEP potentials are official tutorial assets. Heavy raw trajectories and runtime files stay outside git under `runs/`.
 ### NEP4 Tutorial Runs
 
 | Run | System | Official parameters | Wall time | Key output |
@@ -94,6 +77,12 @@ The official tutorial text describes sampling 100 frames. Use `--sample-count 10
 | 600 K local vs official DOAS | 1000 K local vs official DOAS |
 | --- | --- |
 | ![Tutorial 32 600 K local vs official DOAS](examples/tutorial_32_doas_aedp/600K/figures/doas_600K_local_vs_official.png)<br><sub>600 K LLZO local site-energy distribution compared with the official bundled DOAS table.</sub> | ![Tutorial 32 1000 K local vs official DOAS](examples/tutorial_32_doas_aedp/1000K/figures/doas_1000K_local_vs_official.png)<br><sub>1000 K LLZO local site-energy distribution compared with the official bundled DOAS table.</sub> |
+
+| Official tutorial | Local folder | What is shown |
+| --- | --- | --- |
+| [`24_Ionic_Conductivity/1000K`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/24_Ionic_Conductivity) | `examples/a800_nep4_real/ionic_1000K` | LLZO ionic-conductivity MD with temperature, energy, and MSD analysis |
+| [`28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck) | `examples/a800_nep4_real/li3ps4_codecheck` | Li3PS4 HAC/Green-Kubo workflow check against official references |
+| [`32_DOAS_and_AEDP`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/32_DOAS_and_AEDP) | `examples/tutorial_32_doas_aedp` | LLZO DOAS/AEDP local reproduction with official-reference comparison |
 
 ## Reproduce These Results
 
