@@ -23,6 +23,13 @@ OFFICIAL_IONIC = OFFICIAL / "24_Ionic_Conductivity" / "1000K"
 OFFICIAL_CODECHECK = (
     OFFICIAL / "28_thermal_transport_superionic_EMD" / "Li3PS4" / "CodeCheck"
 )
+GPUMD_TUTORIALS_URL = "https://github.com/brucefan1983/GPUMD-Tutorials"
+IONIC_TUTORIAL_URL = (
+    "https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/24_Ionic_Conductivity"
+)
+CODECHECK_TUTORIAL_URL = (
+    "https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck"
+)
 
 COLORS = {
     "blue": "#0072B2",
@@ -400,6 +407,23 @@ def plot_codecheck() -> dict[str, object]:
 def write_summary(summary: dict[str, object]) -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
+    (OUT / "source.md").write_text(
+        "\n".join(
+            [
+                "# Source Tutorials",
+                "",
+                f"- Official repository: {GPUMD_TUTORIALS_URL}",
+                f"- LLZO ionic conductivity: {IONIC_TUTORIAL_URL}",
+                "- Official LLZO path: `examples/24_Ionic_Conductivity/1000K`",
+                f"- Li3PS4 CodeCheck HAC: {CODECHECK_TUTORIAL_URL}",
+                "- Official Li3PS4 path: `examples/28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck`",
+                "",
+                "The local A800 runs use official NEP4 tutorial inputs with GPUMD v5.5. Raw runtime outputs stay under `runs/`; this folder keeps README-ready figures, copied `run.in` files, and summaries.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
 
     ionic = summary["ionic_1000K"]
     codecheck = summary["li3ps4_codecheck"]
@@ -407,6 +431,14 @@ def write_summary(summary: dict[str, object]) -> None:
         "# A800 NEP4 Real GPUMD Demo",
         "",
         "These are real GPUMD v5.5 runs executed on NVIDIA A800 GPUs using official GPUMD-Tutorials NEP4 inputs.",
+        "",
+        "## Official Tutorial Sources",
+        "",
+        f"- LLZO ionic conductivity: `{OFFICIAL_IONIC.relative_to(OFFICIAL)}`",
+        f"  {IONIC_TUTORIAL_URL}",
+        f"- Li3PS4 CodeCheck HAC: `{OFFICIAL_CODECHECK.relative_to(OFFICIAL)}`",
+        f"  {CODECHECK_TUTORIAL_URL}",
+        "",
         "Raw `*.out` files are kept in `runs/` and are not committed; this folder keeps lightweight figures and run inputs for the README demo.",
         "",
         "## Runs",

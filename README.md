@@ -27,12 +27,25 @@ The v0.1 goal is to show that the workflow can:
 | Real tutorial output | Analyze official Si diffusion GPUMD-Tutorials outputs | Cloned tutorial repo | `Data mode: REAL TUTORIAL OUTPUT` |
 | Optional NEP tutorial preview | Analyze official PbTe NEP loss/parity outputs | Cloned tutorial repo | `Data mode: REAL TUTORIAL OUTPUT` |
 | Real GPUMD run | A800 direct-run demo using official NEP4 tutorial inputs | GPUMD 5.5, GPU, traceable `nep.txt` | `Data mode: REAL GPUMD RUN / OFFICIAL TUTORIAL NEP4 INPUT` |
+| DOAS/AEDP tutorial reproduction | Run GPUMD Tutorial 32 locally and compare with official LLZO site-energy references | Cloned tutorial repo, GPUMD 5.5 | `Data mode: LOCAL GPUMD RUN / OFFICIAL REFERENCE COMPARISON` |
 
 Mock data are synthetic. Imported tutorial outputs are used for learning and workflow demonstration. Real GPUMD results require a valid executable, suitable runtime environment, and official or otherwise traceable NEP potential.
 
+## Official Tutorial Provenance
+
+Each example folder records the official source it corresponds to, and keeps its own lightweight data, summaries, and figures.
+
+| Local folder | Official GPUMD-Tutorials source | What is reproduced |
+| --- | --- | --- |
+| `examples/si_diffusion_real` | [`examples/09_Silicon_diffusion`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/09_Silicon_diffusion) | Imported official Si diffusion MSD/SDC tutorial outputs |
+| `examples/pbte_nep_real` | [`examples/11_NEP_potential_PbTe`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/11_NEP_potential_PbTe) | Imported official PbTe NEP loss/parity outputs |
+| `examples/a800_nep4_real/ionic_1000K` | [`examples/24_Ionic_Conductivity/1000K`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/24_Ionic_Conductivity) | Local A800 GPUMD v5.5 run using official NEP4 LLZO ionic-conductivity inputs |
+| `examples/a800_nep4_real/li3ps4_codecheck` | [`examples/28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck) | Local A800 GPUMD v5.5 CodeCheck run using official Li3PS4 HAC inputs |
+| `examples/tutorial_32_doas_aedp` | [`examples/32_DOAS_and_AEDP`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/32_DOAS_and_AEDP) | Local GPUMD MD/minimization workflow, followed by DOAS/AEDP comparison against official bundled references |
+
 ## Demo Results
 
-The repository includes a small set of generated figures for quick preview. They are committed as lightweight demonstration artifacts; raw imported tutorial files and intermediate CSV/JSON outputs remain ignored by default.
+The repository includes a small set of generated figures for quick preview. They are committed as lightweight demonstration artifacts; heavy raw tutorial/runtime files remain ignored, while selected per-example CSV/JSON summaries may be committed when they are part of the demo.
 
 ### Mock MD Workflow
 
@@ -94,6 +107,31 @@ The Li3PS4 CodeCheck run is stochastic and should be treated as a workflow sanit
 | Li3PS4 A800 run vs official bundled reference |
 | --- |
 | ![A800 Li3PS4 reference comparison](examples/a800_nep4_real/li3ps4_codecheck/figures/li3ps4_kz_reference_comparison.png)<br><sub>A800 single-run `kz` compared with the official bundled `hac.out` and independent GK reference. The difference is why this demo reports workflow validity, not reproduced convergence.</sub> |
+
+### Official DOAS/AEDP Tutorial 32 Reproduction
+
+This example is reserved for a true local reproduction of the official GPUMD-Tutorials [`32_DOAS_and_AEDP`](https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/32_DOAS_and_AEDP) tutorial. The tutorial studies LLZO Li site-energy distributions at 600 K and 1000 K using DOAS and AEDP.
+
+Success means running GPUMD locally for the MD stage, sampling local `dump.xyz` frames, minimizing sampled frames locally, extracting local Li site-energy tables, and only then comparing the local DOAS/AEDP figures with the official bundled references.
+
+The local run is generated with:
+
+```bash
+uv run python scripts/run_tutorial_32_doas_aedp.py --sample-count 10
+uv run python scripts/plot_doas_aedp_tutorial.py
+```
+
+The completed local run used `100,000 + 500,000` MD steps at both 600 K and 1000 K, sampled 10 local frames per temperature, minimized those frames, and extracted 35,840 Li site-energy rows per temperature. This matches the official bundled reference table size (`3,584 Li x 10 frames`). The local and official mean site energies agree closely: the absolute mean difference is `9.86e-04 eV` at 600 K and `4.87e-04 eV` at 1000 K.
+
+The official tutorial text describes sampling 100 frames. Use `--sample-count 100` for the longer full-text workflow, or `--sample-count 10` to compare directly with the bundled reference size.
+
+| Tutorial 32 local vs official DOAS | Tutorial 32 local AEDP projections |
+| --- | --- |
+| ![Tutorial 32 local vs official DOAS](examples/tutorial_32_doas_aedp/figures/doas_local_vs_official.png)<br><sub>Local GPUMD-derived DOAS distributions at 600 K and 1000 K compared against the official bundled reference tables. Solid curves are local results; dashed curves are official references.</sub> | ![Tutorial 32 local AEDP projections](examples/tutorial_32_doas_aedp/figures/aedp_local_projections.png)<br><sub>Li positions from locally minimized frames projected onto three lattice planes and colored by atomistic energy, reproducing the AEDP stage of the official tutorial.</sub> |
+
+| 600 K local vs official DOAS | 1000 K local vs official DOAS |
+| --- | --- |
+| ![Tutorial 32 600 K local vs official DOAS](examples/tutorial_32_doas_aedp/600K/figures/doas_600K_local_vs_official.png)<br><sub>600 K LLZO local site-energy distribution compared with the official bundled DOAS table.</sub> | ![Tutorial 32 1000 K local vs official DOAS](examples/tutorial_32_doas_aedp/1000K/figures/doas_1000K_local_vs_official.png)<br><sub>1000 K LLZO local site-energy distribution compared with the official bundled DOAS table.</sub> |
 
 ## Quickstart: Mock Workflow
 

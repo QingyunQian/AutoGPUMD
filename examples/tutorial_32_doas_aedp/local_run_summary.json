@@ -1,0 +1,27 @@
+{
+  "reproduction_scope": "local GPUMD MD, frame sampling, minimization, extraction, and official-reference comparison",
+  "sample_count": 10,
+  "source": "official GPUMD-Tutorials example 32_DOAS_and_AEDP",
+  "temperatures": {
+    "1000K": {
+      "dump_interval": 1000,
+      "li_samples": 35840,
+      "max_site_energy_eV": -3.05668145,
+      "mean_site_energy_eV": -3.2522061926758288,
+      "min_site_energy_eV": -3.450446,
+      "pre_equilibration_steps": 100000,
+      "production_steps": 500000,
+      "sampled_frames": 10
+    },
+    "600K": {
+      "dump_interval": 1000,
+      "li_samples": 35840,
+      "max_site_energy_eV": -3.11169692,
+      "mean_site_energy_eV": -3.2819636136079597,
+      "min_site_energy_eV": -3.41937021,
+      "pre_equilibration_steps": 100000,
+      "production_steps": 500000,
+      "sampled_frames": 10
+    }
+  }
+}

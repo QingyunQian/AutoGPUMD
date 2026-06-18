@@ -1,6 +1,14 @@
 # A800 NEP4 Real GPUMD Demo
 
 These are real GPUMD v5.5 runs executed on NVIDIA A800 GPUs using official GPUMD-Tutorials NEP4 inputs.
+
+## Official Tutorial Sources
+
+- LLZO ionic conductivity: `24_Ionic_Conductivity/1000K`
+  https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/24_Ionic_Conductivity
+- Li3PS4 CodeCheck HAC: `28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck`
+  https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/28_thermal_transport_superionic_EMD/Li3PS4/CodeCheck
+
 Raw `*.out` files are kept in `runs/` and are not committed; this folder keeps lightweight figures and run inputs for the README demo.
 
 ## Runs

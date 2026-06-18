@@ -1,0 +1,61 @@
+{
+  "comparison": {
+    "1000K": {
+      "mean_abs_delta_eV": 0.0004871621721540542,
+      "median_abs_delta_eV": 0.00030417000000015904,
+      "std_abs_delta_eV": 0.000260927336581486
+    },
+    "600K": {
+      "mean_abs_delta_eV": 0.0009857036060267887,
+      "median_abs_delta_eV": 0.001051055000000023,
+      "std_abs_delta_eV": 0.0006605480821169005
+    }
+  },
+  "local": {
+    "1000K": {
+      "li_samples": 35840,
+      "max_site_energy_eV": -3.05668145,
+      "mean_site_energy_eV": -3.2522061926757813,
+      "median_site_energy_eV": -3.247939825,
+      "min_site_energy_eV": -3.450446,
+      "p05_site_energy_eV": -3.338802803,
+      "p95_site_energy_eV": -3.19468471,
+      "std_site_energy_eV": 0.04399036845203397
+    },
+    "600K": {
+      "li_samples": 35840,
+      "max_site_energy_eV": -3.11169692,
+      "mean_site_energy_eV": -3.28196361360798,
+      "median_site_energy_eV": -3.267114755,
+      "min_site_energy_eV": -3.41937021,
+      "p05_site_energy_eV": -3.3824899409999998,
+      "p95_site_energy_eV": -3.2498419425000002,
+      "std_site_energy_eV": 0.039472860150280634
+    }
+  },
+  "official": {
+    "1000K": {
+      "li_samples": 35840,
+      "max_site_energy_eV": -3.05801325,
+      "mean_site_energy_eV": -3.251719030503627,
+      "median_site_energy_eV": -3.247635655,
+      "min_site_energy_eV": -3.45280154,
+      "p05_site_energy_eV": -3.3361772125,
+      "p95_site_energy_eV": -3.1939921664999997,
+      "std_site_energy_eV": 0.04372944111545248
+    },
+    "600K": {
+      "li_samples": 35840,
+      "max_site_energy_eV": -3.09883952,
+      "mean_site_energy_eV": -3.282949317214007,
+      "median_site_energy_eV": -3.26816581,
+      "min_site_energy_eV": -3.43212775,
+      "p05_site_energy_eV": -3.3816755229999997,
+      "p95_site_energy_eV": -3.251215423,
+      "std_site_energy_eV": 0.03881231206816373
+    }
+  },
+  "reproduction_scope": "local GPUMD workflow with official-reference comparison",
+  "source": "official GPUMD-Tutorials example 32_DOAS_and_AEDP",
+  "source_url": "https://github.com/brucefan1983/GPUMD-Tutorials/tree/main/examples/32_DOAS_and_AEDP"
+}

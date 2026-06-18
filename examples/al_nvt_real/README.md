@@ -1,6 +1,7 @@
 # Al NVT Real GPUMD Example
 
 This placeholder describes the real-mode path. To use it, provide a valid GPUMD installation and a user-supplied `nep.txt`. AutoGPUMD does not ship or fabricate potentials.
+This placeholder does not correspond to one fixed official GPUMD tutorial until a specific potential, structure, and run protocol are supplied and documented.
 
 Recommended workflow:
 
