@@ -44,6 +44,36 @@ COLORS = {
 }
 
 
+def _missing_message(title: str, missing: list[tuple[str, Path]], guidance: str) -> str:
+    lines = [title, ""]
+    lines.extend(f"- {label}: {path}" for label, path in missing)
+    lines.extend(["", guidance])
+    return "\n".join(lines)
+
+
+def check_required_inputs() -> None:
+    required = [
+        ("LLZO ionic run directory", IONIC_RUN),
+        ("LLZO ionic run.in", IONIC_RUN / "run.in"),
+        ("LLZO ionic thermo.out", IONIC_RUN / "thermo.out"),
+        ("LLZO ionic msd.out", IONIC_RUN / "msd.out"),
+        ("LLZO ionic gpumd.stdout", IONIC_RUN / "gpumd.stdout"),
+        ("Li3PS4 CodeCheck run directory", CODECHECK_RUN),
+        ("Li3PS4 CodeCheck run.in", CODECHECK_RUN / "run.in"),
+        ("Li3PS4 CodeCheck hac.out", CODECHECK_RUN / "hac.out"),
+        ("Li3PS4 CodeCheck gpumd.stdout", CODECHECK_RUN / "gpumd.stdout"),
+    ]
+    missing = [(label, path) for label, path in required if not path.exists()]
+    if missing:
+        raise FileNotFoundError(
+            _missing_message(
+                "Missing required A800 raw run inputs.",
+                missing,
+                "Restore the ignored raw A800 outputs under runs/ before regenerating figures.",
+            )
+        )
+
+
 def pyplot():
     mpl_config = Path(tempfile.gettempdir()) / "autogpumd-matplotlib"
     mpl_config.mkdir(parents=True, exist_ok=True)
@@ -236,8 +266,8 @@ def plot_ionic() -> dict[str, object]:
     plt.close(fig)
 
     return {
-        "run_dir": str(IONIC_RUN),
-        "output_dir": str(OUT / "ionic_1000K"),
+        "run_path": str(IONIC_RUN.relative_to(ROOT)),
+        "output_path": str((OUT / "ionic_1000K").relative_to(ROOT)),
         "atoms": 12288,
         "steps": 1_000_000,
         "thermo_rows": int(len(thermo)),
@@ -246,7 +276,6 @@ def plot_ionic() -> dict[str, object]:
         "temperature_std_K": float(temperature.std(ddof=0)),
         "temperature_min_K": float(temperature.min()),
         "temperature_max_K": float(temperature.max()),
-        "total_energy_drift_eV": float(total_energy.iloc[-1] - total_energy.iloc[0]),
         "final_msd_A2": final_msd,
         "final_sdc_cm2_s": final_sdc_cm2_s,
         "official_readme_temperature_K": 999.960,
@@ -386,8 +415,8 @@ def plot_codecheck() -> dict[str, object]:
         plt.close(fig)
 
     return {
-        "run_dir": str(CODECHECK_RUN),
-        "output_dir": str(OUT / "li3ps4_codecheck"),
+        "run_path": str(CODECHECK_RUN.relative_to(ROOT)),
+        "output_path": str((OUT / "li3ps4_codecheck").relative_to(ROOT)),
         "atoms": 6144,
         "steps": 400_000,
         "hac_rows": int(len(hac)),
@@ -466,7 +495,7 @@ def write_summary(summary: dict[str, object]) -> None:
         "Each figure is generated as a README-friendly 600 dpi PNG.",
         "",
         "- `ionic_1000K/figures/ionic_temperature.png`: equilibrated LLZO temperature samples with a 20 ps rolling mean and 1000 K target line.",
-        "- `ionic_1000K/figures/ionic_energy_drift.png`: equilibrated NPT kinetic, potential, and total energy fluctuations around their post-transient means.",
+        "- `ionic_1000K/figures/ionic_energy_drift.png`: equilibrated NPT kinetic, potential, and total energy fluctuations around their post-transient means; this is not an NVE energy-drift test.",
         "- `ionic_1000K/figures/ionic_group_msd.png`: Li MSD and final Li diffusivity proxy in the main panel, with La/Zr/O small-scale MSD in the inset.",
         "- `li3ps4_codecheck/figures/li3ps4_hac_components.png`: raw HAC component signals from the A800 single CodeCheck run.",
         "- `li3ps4_codecheck/figures/li3ps4_integrated_hac.png`: integrated HAC signals from the A800 single CodeCheck run.",
@@ -477,6 +506,7 @@ def write_summary(summary: dict[str, object]) -> None:
 
 
 def main() -> None:
+    check_required_inputs()
     summary = {
         "gpumd_version": "5.5",
         "gpu": "NVIDIA A800 80GB PCIe",

@@ -18,6 +18,37 @@ OUT = ROOT / "examples" / "tutorial_32_doas_aedp"
 TEMPERATURES = {"600K": 600, "1000K": 1000}
 
 
+def _missing_message(title: str, missing: list[tuple[str, Path | str]], guidance: str) -> str:
+    lines = [title, ""]
+    lines.extend(f"- {label}: {path}" for label, path in missing)
+    lines.extend(["", guidance])
+    return "\n".join(lines)
+
+
+def check_required_inputs() -> None:
+    required = [
+        ("official Tutorial 32 directory", SOURCE),
+        ("official Tutorial 32 NEP potential", SOURCE / "nep.txt"),
+    ]
+    for temperature in TEMPERATURES:
+        required.append(
+            (f"official Tutorial 32 {temperature} model.xyz", SOURCE / temperature / "model.xyz")
+        )
+    missing: list[tuple[str, Path | str]] = [
+        (label, path) for label, path in required if not path.exists()
+    ]
+    if shutil.which("gpumd") is None:
+        missing.append(("gpumd executable on PATH", "gpumd"))
+    if missing:
+        raise FileNotFoundError(
+            _missing_message(
+                "Missing required Tutorial 32 run inputs.",
+                missing,
+                "Clone external/GPUMD-Tutorials and make sure GPUMD v5.5 is available on PATH.",
+            )
+        )
+
+
 def write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
@@ -226,8 +257,7 @@ def main() -> None:
     parser.add_argument("--out-dir", type=Path, default=OUT)
     args = parser.parse_args()
 
-    if not SOURCE.exists():
-        raise FileNotFoundError("Clone GPUMD-Tutorials into external/GPUMD-Tutorials first.")
+    check_required_inputs()
 
     RUNS = args.runs_dir
     OUT = args.out_dir

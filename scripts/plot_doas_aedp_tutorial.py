@@ -26,6 +26,45 @@ COLORS = {
 }
 
 
+def _missing_message(title: str, missing: list[tuple[str, Path]], guidance: str) -> str:
+    lines = [title, ""]
+    lines.extend(f"- {label}: {path}" for label, path in missing)
+    lines.extend(["", guidance])
+    return "\n".join(lines)
+
+
+def check_required_inputs() -> None:
+    required = []
+    for temperature in ["600K", "1000K"]:
+        suffix = temperature.replace("K", "")
+        required.extend(
+            [
+                (f"official {temperature} DOAS table", SOURCE / temperature / f"doas_{suffix}K.out"),
+                (
+                    f"official {temperature} position-energy table",
+                    SOURCE / temperature / "position_energy.out",
+                ),
+                (
+                    f"local {temperature} site-energy CSV",
+                    OUT / temperature / "data" / "local_li_site_energy.csv",
+                ),
+                (
+                    f"local {temperature} position-energy CSV",
+                    OUT / temperature / "data" / "local_li_position_energy.csv",
+                ),
+            ]
+        )
+    missing = [(label, path) for label, path in required if not path.exists()]
+    if missing:
+        raise FileNotFoundError(
+            _missing_message(
+                "Missing required Tutorial 32 plotting inputs.",
+                missing,
+                "Clone external/GPUMD-Tutorials and run scripts/run_tutorial_32_doas_aedp.py first.",
+            )
+        )
+
+
 def pyplot():
     mpl_config = Path(tempfile.gettempdir()) / "autogpumd-matplotlib"
     mpl_config.mkdir(parents=True, exist_ok=True)
@@ -330,6 +369,7 @@ This example should not be considered reproduced by simply replotting official `
 
 
 def main() -> None:
+    check_required_inputs()
     local_doas = {temperature: read_local_doas(temperature) for temperature in ["600K", "1000K"]}
     official_doas = {temperature: read_official_doas(temperature) for temperature in ["600K", "1000K"]}
     local_positions = {

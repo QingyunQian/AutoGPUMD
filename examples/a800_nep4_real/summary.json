@@ -21,16 +21,15 @@
     "official_msd_li_diffusivity_cm2_s": 9.673976666666666e-06,
     "official_readme_li_diffusivity_cm2_s": 9.667e-06,
     "official_readme_temperature_K": 999.96,
-    "output_dir": "/home/qingyunqian/projects/AutoGPUMD/examples/a800_nep4_real/ionic_1000K",
-    "run_dir": "/home/qingyunqian/projects/AutoGPUMD/runs/nep4_ionic_1000K_short",
+    "output_path": "examples/a800_nep4_real/ionic_1000K",
+    "run_path": "runs/nep4_ionic_1000K_short",
     "steps": 1000000,
     "temperature_max_K": 1028.7716139,
     "temperature_mean_K": 999.8881089216429,
     "temperature_min_K": 877.96279228,
     "temperature_std_K": 7.507650970289514,
     "thermo_rows": 10000,
-    "time_used_s": 3244.388996,
-    "total_energy_drift_eV": 187.25005930000043
+    "time_used_s": 3244.388996
   },
   "li3ps4_codecheck": {
     "atoms": 6144,
@@ -49,8 +48,8 @@
     "max_completed_steps": 200000,
     "official_reference_independent_gk_mean_second_half_W_mK": 0.7800253610399999,
     "official_reference_kz_mean_second_half_W_mK": 0.7800195350582589,
-    "output_dir": "/home/qingyunqian/projects/AutoGPUMD/examples/a800_nep4_real/li3ps4_codecheck",
-    "run_dir": "/home/qingyunqian/projects/AutoGPUMD/runs/nep4_li3ps4_codecheck_short",
+    "output_path": "examples/a800_nep4_real/li3ps4_codecheck",
+    "run_path": "runs/nep4_li3ps4_codecheck_short",
     "steps": 400000,
     "time_used_s": 931.639434
   },
